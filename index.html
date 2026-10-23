@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visualization Projects · Metabase & Grafana Interactive Explainer</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4fb; --card:#ffffff; --ink:#1e1b3a; --muted:#5f5b7a; --line:#e3dfef; --grid:#ece9f5;
+  --pri:#6b3fd6; --pri-soft:#efe9fc; --pri-dark:#5630b8;
+  --acc:#e2780f; --acc-soft:#fdf0e1;
+  --cy:#0f86b5; --cy-soft:#e2f2f9;
+  --rose:#d33c6b; --rose-soft:#fbe8ef;
+  --green:#2b9a5e; --green-soft:#e4f4ea;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.6}
+.mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
+code{color:var(--pri-dark);background:var(--pri-soft);border-radius:5px;padding:.05rem .3rem;font-size:.85em}
+:focus-visible{outline:3px solid var(--pri)!important;outline-offset:2px}
+
+/* hero */
+.hero{background:#fff;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background-image:radial-gradient(#d9d2ef 1.2px,transparent 1.3px);background-size:18px 18px;mask-image:linear-gradient(100deg,transparent 35%,#000 80%);pointer-events:none}
+.hero-spark{position:absolute;right:3%;bottom:18px;width:min(38%,460px);opacity:.9;pointer-events:none}
+.hero .container-xl{position:relative}
+.crumb{display:inline-flex;align-items:center;gap:.45rem;font-size:.85rem;color:var(--muted);font-weight:600}
+.crumb i{color:var(--pri)}
+.hero h1{font-weight:800;font-size:clamp(1.7rem,3.2vw,2.55rem);letter-spacing:-.025em;line-height:1.12;margin:.5rem 0 .6rem;max-width:20ch}
+.hero .goal{max-width:66ch;color:var(--muted);font-size:1.02rem;margin:0}
+.lesson-card{display:flex;gap:.9rem;align-items:flex-start;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:1rem 1.1rem;transition:border-color .2s,box-shadow .2s;color:var(--ink)}
+.lesson-card:hover{border-color:#c9c0e6}
+.lesson-card.active{border-color:var(--pri);box-shadow:0 0 0 4px var(--pri-soft)}
+.lesson-card .lnum{flex:0 0 42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.2rem;background:var(--pri-soft);color:var(--pri)}
+.lesson-card .lt{font-weight:700;line-height:1.3}
+.lesson-card .ls{font-size:.85rem;color:var(--muted)}
+.lprog{height:4px;background:var(--grid);border-radius:4px;margin-top:.5rem;overflow:hidden}
+.lprog i{display:block;height:100%;background:var(--pri);width:0;transition:width .4s}
+
+/* rail */
+.rail{background:#fff;border:1px solid var(--line);border-radius:16px;padding:.75rem}
+.rail-head{font-size:.85rem;color:var(--muted);padding:.25rem .5rem .6rem;border-bottom:1px solid var(--line);margin-bottom:.4rem}
+.rail-head b{color:var(--ink);display:block;font-size:.95rem}
+.rail-list{list-style:none;margin:0;padding:0}
+.rail-list button{display:flex;align-items:center;gap:.6rem;width:100%;border:0;background:transparent;text-align:left;padding:.42rem .5rem;border-radius:10px;font-size:.88rem;color:var(--ink);line-height:1.3}
+.rail-list button:hover{background:var(--bg)}
+.rail-list button.active{background:var(--pri-soft);font-weight:700}
+.rail-list .n{flex:0 0 24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:700;border:1.5px solid var(--line);color:var(--muted);background:#fff}
+.rail-list button.done .n{background:var(--pri);border-color:var(--pri);color:#fff}
+.rail-list button.active .n{border-color:var(--pri);color:var(--pri);background:#fff}
+.rail-list button.quiz .n{border-style:dashed}
+
+/* stage */
+.stage{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.stage-head{padding:1.25rem 1.5rem 1rem}
+.step-meta{font-size:.85rem;color:var(--pri);font-weight:700}
+.stage-head h2{font-size:clamp(1.3rem,2.2vw,1.65rem);font-weight:800;letter-spacing:-.015em;margin:.2rem 0 .35rem}
+.stage-head .lead-txt{color:var(--muted);margin:0;max-width:72ch}
+.thin{height:5px;background:var(--grid);border-radius:5px;margin-top:1rem;overflow:hidden}
+.thin>div{height:100%;background:linear-gradient(90deg,var(--pri),var(--acc));transition:width .45s ease}
+.vis{min-height:360px;padding:1.25rem 1.5rem;background-color:#faf9fd;background-image:radial-gradient(#e4dff2 1px,transparent 1.2px);background-size:16px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);position:relative}
+.explain{font-size:1rem;max-width:70ch}
+.explain p{margin-bottom:.8rem}
+.explain ul{padding-left:1.1rem}
+.explain li{margin-bottom:.35rem}
+.keycard{border-left:4px solid var(--pri);background:var(--pri-soft);border-radius:0 12px 12px 0;padding:.85rem 1rem;margin-bottom:1rem}
+.keycard .kt{font-size:.82rem;font-weight:700;color:var(--pri);margin-bottom:.2rem}
+.keycard p{margin:0;font-weight:600}
+.tool-box{border:1px dashed #cdc5e4;border-radius:12px;padding:.85rem 1rem;background:#fff}
+.tool-box .kt{font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:.45rem}
+.term{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:.12rem .45rem;margin:0 .25rem .35rem 0}
+.stage-foot{display:flex;justify-content:space-between;align-items:center;padding:.9rem 1.5rem;border-top:1px solid var(--line);background:#fff;gap:.5rem}
+.btn-brand{--bs-btn-color:#fff;--bs-btn-bg:var(--pri);--bs-btn-border-color:var(--pri);--bs-btn-hover-color:#fff;--bs-btn-hover-bg:var(--pri-dark);--bs-btn-hover-border-color:var(--pri-dark);--bs-btn-active-bg:#48279c;--bs-btn-active-color:#fff;--bs-btn-disabled-bg:#a995e3;--bs-btn-disabled-border-color:#a995e3;font-weight:700}
+.btn-ghost{--bs-btn-color:var(--ink);--bs-btn-border-color:var(--line);--bs-btn-hover-bg:var(--bg);--bs-btn-hover-border-color:#cdc5e4;--bs-btn-hover-color:var(--ink);background:#fff;font-weight:600}
+.btn-seg{--bs-btn-color:var(--muted);--bs-btn-border-color:var(--line);--bs-btn-hover-bg:var(--bg);--bs-btn-hover-color:var(--ink);background:#fff;font-weight:600}
+.btn-seg.active{background:var(--ink)!important;color:#fff!important;border-color:var(--ink)!important}
+.kbd-hint{font-size:.8rem;color:var(--muted)}
+
+/* vis parts */
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem}
+.panel-title{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.92rem;margin-bottom:.75rem}
+.panel-title i{color:var(--pri)}
+.pill{display:inline-block;font-size:.76rem;font-weight:600;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:.1rem .6rem;color:var(--muted)}
+.tag{display:inline-block;font-size:.74rem;font-weight:700;border-radius:6px;padding:.08rem .45rem}
+.tag-pri{background:var(--pri-soft);color:var(--pri)} .tag-acc{background:var(--acc-soft);color:var(--acc)} .tag-cy{background:var(--cy-soft);color:var(--cy)} .tag-rose{background:var(--rose-soft);color:var(--rose)} .tag-green{background:var(--green-soft);color:var(--green)}
+.node{display:inline-flex;flex-direction:column;align-items:center;border-radius:14px;padding:.6rem .8rem;font-weight:700;font-size:.85rem;border:2px solid;background:#fff;line-height:1.25;text-align:center;min-width:104px}
+.node i{font-size:1.3rem}
+.node small{font-weight:500;color:var(--muted);font-size:.72rem}
+.n-pri{border-color:var(--pri);color:var(--pri)} .n-acc{border-color:var(--acc);color:var(--acc)} .n-cy{border-color:var(--cy);color:var(--cy)} .n-green{border-color:var(--green);color:var(--green)} .n-rose{border-color:var(--rose);color:var(--rose)}
+.flow{position:relative;display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:640px;padding:.6rem .2rem}
+.flow-track{position:absolute;left:50px;right:50px;top:50%;height:3px;background:repeating-linear-gradient(90deg,#cfc6ea 0 8px,transparent 8px 14px);z-index:0}
+.flow .node{position:relative;z-index:1}
+.fwrap{overflow-x:auto}
+.pkt{position:absolute;top:50%;left:0;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:4px;z-index:2;opacity:0}
+.bar{height:12px;background:var(--grid);border-radius:6px;overflow:hidden}
+.bar-fill{height:100%;width:0;background:var(--pri);border-radius:6px}
+.dtable{width:100%;font-size:.8rem;border-collapse:separate;border-spacing:0}
+.dtable th{font-weight:700;color:var(--muted);font-size:.74rem;padding:.35rem .5rem;border-bottom:1.5px solid var(--line);white-space:nowrap}
+.dtable td{padding:.34rem .5rem;border-bottom:1px solid var(--grid);white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:.75rem}
+.dtable tr.hl td{background:var(--pri-soft)}
+.dtable tr.new td{background:var(--green-soft)}
+.dtable tr.upd td{background:var(--acc-soft)}
+.dtable tr.dup td{background:var(--rose-soft)}
+.dtable tr.drop td{color:#b5b0c8;text-decoration:line-through}
+.qbtn{display:flex;gap:.5rem;align-items:flex-start;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:.6rem .75rem;margin-bottom:.5rem;font-weight:600;font-size:.9rem;color:var(--ink)}
+.qbtn i{color:var(--pri);margin-top:.15rem}
+.qbtn.active{border-color:var(--pri);background:var(--pri-soft)}
+.bignum{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:clamp(2.4rem,6vw,3.6rem);line-height:1;color:var(--ink)}
+.rawrow{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.rawrow .lbl{width:52px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)}
+.rdot{width:15px;height:15px;border-radius:4px;display:inline-block}
+.aggtbl{width:100%;border-collapse:separate;border-spacing:6px}
+.aggtbl th{font-size:.72rem;color:var(--muted);font-weight:700;text-align:center}
+.bucket{height:42px;border-radius:10px;border:1.5px dashed #cdc5e4;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1rem;background:#fff}
+.legend-dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:.3rem;vertical-align:middle}
+.mb-panel{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.mb-top{background:#f3f0fb;border-bottom:1px solid var(--line);padding:.55rem .9rem;font-weight:700;font-size:.85rem;display:flex;align-items:center;gap:.5rem}
+.mb-top .dotz{display:flex;gap:4px} .mb-top .dotz span{width:9px;height:9px;border-radius:50%;background:#d6cfec}
+.nb-step{padding:.7rem .9rem;border-bottom:1px solid var(--grid)}
+.nb-h{font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:.35rem}
+.nb-chip{display:inline-flex;align-items:center;gap:.4rem;border-radius:8px;padding:.3rem .6rem;font-weight:700;font-size:.85rem;background:var(--pri-soft);color:var(--pri)}
+.form-select,.form-control{font-size:.85rem}
+.fake-input{border:1px solid var(--line);border-radius:8px;padding:.3rem .6rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;background:#fbfaff}
+.check-line{display:flex;align-items:center;gap:.5rem;font-size:.88rem;margin-bottom:.35rem}
+.check-line i{color:#c9c2df}
+.check-line.ok i{color:var(--green)}
+.semchip{font-size:.68rem;font-weight:700;border-radius:5px;padding:.02rem .35rem;background:var(--cy-soft);color:var(--cy)}
+.verdict{border-radius:12px;padding:.7rem .9rem;font-weight:600;font-size:.9rem}
+.v-best{background:var(--green-soft);color:#1f7046} .v-ok{background:var(--acc-soft);color:#9a520a} .v-bad{background:var(--rose-soft);color:#a12a50}
+.dash{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.dcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.7rem .8rem;position:relative;min-height:96px}
+.dcard .dt{font-size:.78rem;font-weight:700;color:var(--muted)}
+.dcard .dv{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:600}
+.dcard.glow{box-shadow:0 0 0 3px var(--pri)}
+.dcard.vanity{box-shadow:0 0 0 3px var(--rose)}
+.ord{position:absolute;top:-9px;left:-9px;width:24px;height:24px;border-radius:50%;background:var(--acc);color:#fff;font-weight:800;font-size:.75rem;display:grid;place-items:center;opacity:0}
+.s2{grid-column:span 2} .s4{grid-column:span 4} .s6{grid-column:span 6} .s3{grid-column:span 3}
+@media (max-width:767px){.dash{grid-template-columns:1fr}.s2,.s3,.s4,.s6{grid-column:span 1}}
+.linkchip{position:absolute;top:.55rem;right:.6rem;font-size:.68rem;font-weight:700}
+.filterbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:.6rem .8rem;margin-bottom:10px}
+.lane{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.lane .lname{width:92px;font-size:.75rem;font-weight:700;color:var(--muted);flex:0 0 92px}
+.lane .msgs{flex:1;display:flex;gap:4px;overflow:hidden;height:30px;background:#f3f0fb;border-radius:8px;padding:3px;justify-content:flex-start}
+.msg{flex:0 0 34px;height:24px;border-radius:5px;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:600;color:#fff}
+.msg.read{opacity:.35}
+.feed{height:150px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:.74rem}
+.feed div{padding:.12rem 0;border-bottom:1px dashed var(--grid)}
+.state-pill{display:inline-flex;align-items:center;gap:.35rem;border-radius:999px;padding:.25rem .8rem;font-weight:800;font-size:.85rem}
+.st-normal{background:var(--green-soft);color:var(--green)} .st-pending{background:var(--acc-soft);color:var(--acc)} .st-firing{background:var(--rose);color:#fff}
+.latbar{display:flex;height:40px;border-radius:10px;overflow:hidden;font-size:.72rem;font-weight:700;color:#fff}
+.latbar>div{display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.1;padding:0 4px;overflow:hidden}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.55rem .7rem}
+[class^="col"]>.stat{height:100%}
+.stat .l{font-size:.74rem;color:var(--muted);font-weight:600}
+.stat .v{font-family:'JetBrains Mono',monospace;font-size:1.15rem;font-weight:600}
+.gf-panel{background:#fff;border:1px solid var(--line);border-radius:10px}
+.gf-head{display:flex;align-items:center;gap:.5rem;padding:.45rem .75rem;border-bottom:1px solid var(--grid);font-size:.82rem;font-weight:700}
+.gf-row{display:grid;grid-template-columns:120px 1fr;gap:.5rem;align-items:center;padding:.4rem .75rem;font-size:.82rem}
+.gf-row .k{color:var(--muted);font-weight:600}
+.quiz-q{background:#fff;border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem}
+.quiz-q .qt{font-weight:700;margin-bottom:.6rem}
+.quiz-opt{display:block;width:100%;text-align:left;background:var(--bg);border:1.5px solid transparent;border-radius:10px;padding:.5rem .75rem;margin-bottom:.4rem;font-size:.92rem;color:var(--ink)}
+.quiz-opt:hover{border-color:#cdc5e4}
+.quiz-opt.right{border-color:var(--green);background:var(--green-soft)}
+.quiz-opt.wrong{border-color:var(--rose);background:var(--rose-soft)}
+.quiz-ex{font-size:.88rem;color:var(--muted);display:none;margin-top:.3rem}
+input[type=range]{width:100%;accent-color:var(--pri)}
+.badge-dark{font-family:'JetBrains Mono',monospace;font-weight:600;background:var(--ink);color:#fff;border-radius:8px;padding:.15rem .6rem;font-size:.85rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="hero-spark d-none d-md-block" viewBox="0 0 460 120" aria-hidden="true">
+    <polyline id="heroLine" fill="none" stroke="#6b3fd6" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points=""/>
+    <circle id="heroDot" r="5" fill="#e2780f"/>
+  </svg>
+  <div class="container-xl py-4 py-md-5">
+    <span class="crumb"><i class="bi bi-bar-chart-line-fill"></i> Big Data Analytics lab / Visualization Projects</span>
+    <h1>From Spark output to dashboards people actually use</h1>
+    <p class="goal">Serve pre-aggregated Spark output to Metabase and build a dashboard that answers questions, then wire a Grafana panel to a live Structured Streaming sink. This page explains the ideas with pictures and live experiments; the commands come later in the lab simulator.</p>
+    <div class="row g-3 mt-3" id="lessonCards"></div>
+  </div>
+</header>
+
+<main class="container-xl py-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">
+      <div class="rail sticky-lg-top" style="top:16px">
+        <div class="rail-head" id="railHead"></div>
+        <ol class="rail-list" id="rail"></ol>
+      </div>
+    </aside>
+    <section class="col-lg-9">
+      <article class="stage">
+        <div class="stage-head">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div class="step-meta" id="stepMeta"></div>
+            <button class="btn btn-ghost btn-sm" id="replay" title="Restart this step’s animation"><i class="bi bi-arrow-counterclockwise"></i> Replay</button>
+          </div>
+          <h2 id="stepTitle"></h2>
+          <p class="lead-txt" id="stepLead"></p>
+          <div class="thin"><div id="prog"></div></div>
+        </div>
+        <div class="vis" id="vis"></div>
+        <div class="row g-4 p-3 p-md-4">
+          <div class="col-md-8"><div class="explain" id="explain"></div></div>
+          <div class="col-md-4" id="side"></div>
+        </div>
+        <div class="stage-foot">
+          <button class="btn btn-ghost" id="prev"><i class="bi bi-arrow-left"></i> Previous</button>
+          <span class="kbd-hint d-none d-md-inline">Use ← and → keys to move between steps</span>
+          <button class="btn btn-brand" id="next">Next <i class="bi bi-arrow-right"></i></button>
+        </div>
+      </article>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* =========================================================
+   Helpers
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const C = { ink:'#1e1b3a', muted:'#5f5b7a', pri:'#6b3fd6', acc:'#e2780f', cy:'#0f86b5', rose:'#d33c6b', green:'#2b9a5e', grey:'#b3aecb', line:'#ece9f5' };
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const pad = n => String(n).padStart(2, '0');
+const hhmm = m => `${pad(Math.floor(m / 60) % 24)}:${pad(Math.floor(m % 60))}`;
+
+let charts = [], timers = [];
+function cleanup(){
+  gsap.globalTimeline.clear();
+  charts.forEach(c => c.destroy()); charts = [];
+  timers.forEach(t => { clearInterval(t); clearTimeout(t); }); timers = [];
+}
+const every = (fn, ms) => { const id = setInterval(fn, ms); timers.push(id); return id; };
+const later = (fn, ms) => { const id = setTimeout(fn, ms); timers.push(id); return id; };
+const mkChart = (canvas, cfg) => { const c = new Chart(canvas, cfg); charts.push(c); return c; };
+const killChart = c => { if (!c) return; c.destroy(); charts = charts.filter(x => x !== c); };
+function countTo(el, to, { dur = 1, suffix = '' } = {}){ const o = { v: 0 }; gsap.to(o, { v: to, duration: dur, ease: 'power2.out', onUpdate: () => { el.textContent = fmt(o.v) + suffix; } }); }
+Chart.defaults.font.family = "'Manrope', system-ui, sans-serif";
+Chart.defaults.color = C.muted;
+Chart.defaults.borderColor = C.line;
+Chart.defaults.plugins.legend.labels.boxWidth = 14;
+
+/* =========================================================
+   Shared demo data: one week of hourly security event counts
+   (this is what the Spark batch job writes for Metabase)
+   ========================================================= */
+const TYPES = ['failed_login', 'port_scan', 'malware_alert', 'policy_violation'];
+const TCOL = { failed_login: C.rose, port_scan: C.acc, malware_alert: C.cy, policy_violation: C.pri };
+const SRC = ['VPN', 'Firewall', 'Web server', 'Email gateway'];
+const SHARE = { failed_login: [.55, .05, .3, .1], port_scan: [.05, .8, .15, 0], malware_alert: [.1, 0, .2, .7], policy_violation: [.2, 0, .5, .3] };
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const HOURLY = (() => {
+  const r = mulberry32(9), base = { failed_login: 120, port_scan: 60, malware_alert: 8, policy_violation: 25 }, out = [];
+  for (let d = 0; d < 7; d++) for (let h = 0; h < 24; h++) for (const t of TYPES) {
+    const work = (h >= 8 && h <= 18) ? 1.4 : .6;
+    let v = base[t] * work * (.85 + r() * .3) * (t === 'port_scan' ? 1 + d * .07 : 1);
+    if (t === 'failed_login' && d === 5 && h >= 1 && h <= 5) v *= 4;
+    if (d >= 5 && t === 'policy_violation') v *= .4;
+    out.push({ d, h, t, v: Math.round(v) });
+  }
+  return out;
+})();
+/* query the pre-aggregated table: rows are (day, hour, event_type, source, event_count) */
+function query({ type = 'all', group = 'day', measure = 'sum', range = '7d' } = {}){
+  let rows = HOURLY;
+  if (range === '24h') rows = rows.filter(x => x.d === 6);
+  if (type !== 'all') rows = rows.filter(x => x.t === type);
+  const labels = group === 'day' ? DAYS : group === 'hour' ? Array.from({ length: 24 }, (_, i) => pad(i) + ':00') : group === 'source' ? SRC : TYPES;
+  const acc = new Map(labels.map(l => [l, 0]));
+  for (const r of rows) for (let s = 0; s < 4; s++) {
+    const sh = SHARE[r.t][s]; if (!sh) continue;
+    const key = group === 'day' ? DAYS[r.d] : group === 'hour' ? pad(r.h) + ':00' : group === 'source' ? SRC[s] : r.t;
+    acc.set(key, acc.get(key) + (measure === 'sum' ? Math.round(r.v * sh) : 1));
+  }
+  return { labels, values: labels.map(l => acc.get(l)) };
+}
+const total = q => query(q).values.reduce((a, b) => a + b, 0);
+const TABLE_ROWS = HOURLY.reduce((n, r) => n + SHARE[r.t].filter(Boolean).length, 0);
+
+/* chart presets */
+const lineOpts = (extra = {}) => ({ maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } }, ...extra });
+const barOpts = (extra = {}) => ({ maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } }, ...extra });
+
+/* =========================================================
+   LESSON 1 · Creating dashboards with big data tools
+   ========================================================= */
+const L1 = [
+{
+  short: 'Start with questions', title: 'A dashboard exists to answer questions',
+  lead: 'Before touching any tool, write down the questions the dashboard must answer. Each question decides one card.',
+  html: `<p>A good dashboard is not a wall of charts. It is a short list of <b>questions</b>, each answered by one card at a glance.</p>
+  <p>Our scenario: a security operations centre (SOC). Spark already processes billions of security events. The SOC manager asks questions like the ones on the left. Click each question and see which kind of card answers it.</p>
+  <ul><li>Something changing over <b>time</b> → a line chart.</li><li><b>Comparing</b> a few categories → a bar chart.</li><li>One <b>headline</b> number → a big number card.</li></ul>`,
+  key: 'Question first, chart second. A card that answers no question is decoration.',
+  terms: ['question', 'card', 'dashboard', 'KPI'],
+  vis(el){
+    const Q = [
+      { q: 'Is attack activity rising this week?', why: 'trend over time → line chart' },
+      { q: 'Which source produces the most failed logins?', why: 'compare categories → bar chart' },
+      { q: 'How many malware alerts did we get this week?', why: 'one headline value → big number' }];
+    el.innerHTML = `<div class="row g-3"><div class="col-md-5"><div class="panel h-100"><div class="panel-title"><i class="bi bi-chat-square-text"></i> Questions from the SOC manager</div>
+      ${Q.map((x, i) => `<button class="qbtn" data-i="${i}"><i class="bi bi-question-circle-fill"></i><span>${x.q}</span></button>`).join('')}</div></div>
+      <div class="col-md-7"><div class="panel h-100"><div class="panel-title"><i class="bi bi-easel2"></i> The card that answers it <span class="ms-auto pill" id="why"></span></div><div id="ans" style="height:250px;position:relative"></div></div></div></div>`;
+    let ch = null;
+    const show = i => {
+      $$('.qbtn', el).forEach(b => b.classList.toggle('active', +b.dataset.i === i));
+      $('#why', el).textContent = Q[i].why; killChart(ch); ch = null;
+      const a = $('#ans', el);
+      if (i === 2) {
+        a.innerHTML = `<div class="h-100 d-flex flex-column justify-content-center align-items-center"><div class="small text-muted fw-bold mb-2">Malware alerts · last 7 days</div><div class="bignum" id="bn">0</div><div class="small mt-2" style="color:${C.cy}"><i class="bi bi-envelope-exclamation"></i> mostly from the email gateway</div></div>`;
+        countTo($('#bn', a), total({ type: 'malware_alert' }), { dur: 1.2 });
+      } else if (i === 0) {
+        a.innerHTML = '<canvas></canvas>';
+        ch = mkChart($('canvas', a), { type: 'line', data: { labels: DAYS, datasets: ['failed_login', 'port_scan'].map(t => ({ label: t, data: query({ type: t, group: 'day' }).values, borderColor: TCOL[t], backgroundColor: TCOL[t], tension: .3, pointRadius: 3 })) }, options: lineOpts() });
+      } else {
+        a.innerHTML = '<canvas></canvas>';
+        const q = query({ type: 'failed_login', group: 'source' });
+        ch = mkChart($('canvas', a), { type: 'bar', data: { labels: q.labels, datasets: [{ data: q.values, backgroundColor: q.values.map((v, k) => k === 0 ? C.rose : '#e8b3c5'), borderRadius: 6 }] }, options: barOpts({ indexAxis: 'y' }) });
+      }
+    };
+    $$('.qbtn', el).forEach(b => b.onclick = () => show(+b.dataset.i));
+    show(0);
+  }
+},
+{
+  short: 'Why pre-aggregate?', title: 'Why we do not point the dashboard at raw data',
+  lead: 'Every time someone opens a dashboard, every card runs a query. On billions of rows, that is painfully slow.',
+  html: `<p>Our raw security logs hold about <b>2 billion rows</b>. A dashboard card that asks “failed logins per day” would have to scan all of them, every time anyone opens the page or changes a filter.</p>
+  <p>Instead, Spark does the heavy work <b>once</b>, in a scheduled batch job, and writes a small <b>pre-aggregated</b> table: counts per hour, per event type, per source. For a week that is only ${fmt(TABLE_ROWS)} rows.</p>
+  <p>Press <b>Open the dashboard</b> and compare. Same answer, very different wait.</p>`,
+  key: 'Spark does the heavy lifting once; the dashboard reads a small, ready-made summary.',
+  terms: ['raw data', 'pre-aggregation', 'summary table', 'batch job'],
+  vis(el){
+    el.innerHTML = `<div class="row g-3">
+      ${[['raw', 'bi-database-fill', 'Raw events table', '2,000,000,000 rows', '#9a94b8'], ['agg', 'bi-table', 'Pre-aggregated table', fmt(TABLE_ROWS) + ' rows', C.pri]].map(([k, ic, t, rows, col]) => `
+      <div class="col-md-6"><div class="panel h-100"><div class="panel-title"><i class="bi ${ic}" style="color:${col}"></i> Dashboard reads: ${t}</div>
+        <div class="small text-muted mb-1">${rows}</div>
+        <div class="small fw-bold mt-2">Rows scanned</div><div class="mono fs-5" id="${k}R">0</div>
+        <div class="bar my-2"><div class="bar-fill" id="${k}B" style="background:${col}"></div></div>
+        <div class="d-flex justify-content-between small"><span>Time to load</span><span class="mono fw-bold" id="${k}T">0.0 s</span></div>
+        <div class="dash mt-3" style="grid-template-columns:repeat(3,1fr)">${[0, 1, 2].map(() => `<div class="dcard d-grid" style="min-height:64px;place-items:center"><span class="spinner-border spinner-border-sm text-secondary ${k}S" style="opacity:0"></span><i class="bi bi-bar-chart-fill fs-4 ${k}C" style="color:${col};opacity:0"></i></div>`).join('')}</div>
+      </div></div>`).join('')}</div>
+      <div class="text-center mt-3"><button class="btn btn-brand btn-sm" id="go"><i class="bi bi-box-arrow-up-right"></i> Open the dashboard</button></div>`;
+    const run = () => {
+      gsap.globalTimeline.clear();
+      gsap.set($$('.bar-fill', el), { width: 0 }); gsap.set($$('.rawC,.aggC', el), { opacity: 0 }); gsap.set($$('.rawS,.aggS', el), { opacity: 1 });
+      const o1 = { r: 0, t: 0 }, o2 = { r: 0, t: 0 };
+      gsap.to('#rawB', { width: '100%', duration: 7, ease: 'none' });
+      gsap.to(o1, { r: 2e9, t: 47, duration: 7, ease: 'none', onUpdate: () => { $('#rawR', el).textContent = fmt(o1.r); $('#rawT', el).textContent = o1.t.toFixed(1) + ' s'; }, onComplete: () => { gsap.to($$('.rawS', el), { opacity: 0 }); gsap.to($$('.rawC', el), { opacity: 1, stagger: .15 }); } });
+      gsap.to('#aggB', { width: '100%', duration: .35, ease: 'none' });
+      gsap.to(o2, { r: TABLE_ROWS, t: .2, duration: .35, ease: 'none', onUpdate: () => { $('#aggR', el).textContent = fmt(o2.r); $('#aggT', el).textContent = o2.t.toFixed(1) + ' s'; }, onComplete: () => { gsap.to($$('.aggS', el), { opacity: 0, duration: .1 }); gsap.fromTo($$('.aggC', el), { opacity: 0, scale: .4 }, { opacity: 1, scale: 1, stagger: .1, ease: 'back.out(2)' }); } });
+    };
+    $('#go', el).onclick = run;
+  }
+},
+{
+  short: 'Aggregate in Spark', title: 'Spark groups raw events into summary rows',
+  lead: 'Many raw events with the same hour and type collapse into one row holding a count.',
+  html: `<p>Each dot on the left is one raw event, coloured by its type and sitting in the hour it happened. Press <b>Run the Spark job</b>.</p>
+  <p>Spark <b>groups</b> events that share the same hour and event type, then <b>counts</b> them. Thirty-six raw rows become twelve summary rows. At full scale, two billion rows become a few thousand.</p>
+  <p>The table on the right is drawn as a grid to make it easy to read. Stored in a database it is a plain list of rows with the columns <code>hour</code>, <code>event_type</code>, <code>source</code> and <code>event_count</code>.</p>`,
+  key: 'Group by the questions’ dimensions (time, type, source) and store counts, not events.',
+  terms: ['groupBy', 'count', 'sum', 'dimension', 'measure'],
+  vis(el){
+    const r = mulberry32(3), hours = ['09:00', '10:00', '11:00'], W = [.45, .3, .1, .15];
+    const pickT = () => { let x = r(), k = 0; while (x > W[k]) { x -= W[k]; k++; } return k; };
+    const ev = []; hours.forEach((_, hi) => { for (let k = 0; k < 12; k++) ev.push({ h: hi, t: pickT() }); });
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-5"><div class="panel h-100"><div class="panel-title"><i class="bi bi-dot"></i> Raw events (one square = one event)</div>
+        ${hours.map((h, hi) => `<div class="rawrow"><span class="lbl">${h}</span>${ev.map((e, i) => e.h === hi ? `<span class="rdot" data-i="${i}" style="background:${TCOL[TYPES[e.t]]}"></span>` : '').join('')}</div>`).join('')}
+        <div class="small mt-2">${TYPES.map(t => `<span class="me-2 text-nowrap"><span class="legend-dot" style="background:${TCOL[t]}"></span>${t}</span>`).join('')}</div></div></div>
+      <div class="col-lg-7"><div class="panel h-100"><div class="panel-title"><i class="bi bi-grid-3x3-gap"></i> Summary table: event_count per hour and type</div>
+        <table class="aggtbl"><thead><tr><th></th>${TYPES.map(t => `<th>${t.replace('_', ' ')}</th>`).join('')}</tr></thead>
+        <tbody>${hours.map((h, hi) => `<tr><th class="mono">${h}</th>${TYPES.map((t, ti) => `<td><div class="bucket" id="bk${hi}-${ti}" style="border-color:${TCOL[t]}55">0</div></td>`).join('')}</tr>`).join('')}</tbody></table>
+        <div class="small mt-2" id="sum">&nbsp;</div></div></div></div>
+      <div class="text-center mt-3"><button class="btn btn-brand btn-sm" id="go"><i class="bi bi-play-fill"></i> Run the Spark job</button></div>`;
+    $('#go', el).onclick = e => {
+      e.currentTarget.disabled = true;
+      const cnt = {};
+      $$('.rdot', el).forEach((d, k) => {
+        const e1 = ev[+d.dataset.i], b = $(`#bk${e1.h}-${e1.t}`, el), dr = d.getBoundingClientRect(), br = b.getBoundingClientRect();
+        gsap.to(d, { x: br.left + br.width / 2 - dr.left - dr.width / 2, y: br.top + br.height / 2 - dr.top - dr.height / 2, scale: .6, duration: .7, delay: k * .045, ease: 'power2.inOut', onComplete: () => {
+          gsap.to(d, { opacity: 0, duration: .15 });
+          const key = e1.h + '-' + e1.t; cnt[key] = (cnt[key] || 0) + 1; b.textContent = cnt[key];
+          b.style.background = TCOL[TYPES[e1.t]] + '22'; b.style.borderStyle = 'solid';
+          gsap.fromTo(b, { scale: 1.15 }, { scale: 1, duration: .25 });
+        } });
+      });
+      later(() => { $('#sum', el).innerHTML = `<b>36 raw rows → 12 summary rows.</b> At full scale: 2,000,000,000 → ${fmt(TABLE_ROWS)}.`; gsap.from('#sum', { opacity: 0, y: 6 }); }, 36 * 45 + 900);
+    };
+  }
+},
+{
+  short: 'Choose the grain', title: 'Choose the grain: how detailed should the summary be?',
+  lead: 'Finer time steps and more dimensions give more detail, but more rows. Pick the coarsest grain that still answers the questions.',
+  html: `<p>The <b>grain</b> is the size of one time bucket (minute, hour, day). The <b>dimensions</b> are the columns we group by.</p>
+  <p>Try it: at <b>day</b> grain the table is tiny, but the chart cannot show the burst of failed logins at 03:00. At <b>minute</b> grain you see everything, but the table grows fast, especially when you add a dimension with many values like <code>country</code>.</p>
+  <p>Rule of thumb: match the grain to the questions. “Per hour today” needs hourly data; “per week this quarter” only needs daily data. You can always build two summary tables at two grains.</p>`,
+  key: 'Pick the coarsest grain and fewest dimensions that still answer your questions.',
+  terms: ['grain', 'dimension', 'cardinality', 'window(hour)', 'date_trunc'],
+  vis(el){
+    const r = mulberry32(21), minute = [];
+    for (let m = 0; m < 1440; m++) { const h = m / 60; let v = (h >= 8 && h <= 18 ? 2.6 : 1.1) + r() * 1.2; if (m >= 180 && m <= 205) v += 9 + r() * 4; minute.push(+v.toFixed(1)); }
+    const hourly = Array.from({ length: 24 }, (_, h) => +minute.slice(h * 60, h * 60 + 60).reduce((a, b) => a + b, 0).toFixed(0));
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-4"><div class="panel h-100">
+        <div class="small fw-bold mb-1">Time grain</div><div class="btn-group btn-group-sm w-100 mb-3" id="gr">${['minute', 'hour', 'day'].map(g => `<button class="btn btn-seg ${g === 'hour' ? 'active' : ''}" data-g="${g}">${g}</button>`).join('')}</div>
+        <div class="small fw-bold mb-1">Dimensions to group by</div>
+        ${[['event_type', 4, true], ['source', 4, true], ['country', 40, false]].map(([d, c, on]) => `<div class="form-check"><input class="form-check-input" type="checkbox" id="d_${d}" data-c="${c}" ${on ? 'checked' : ''}><label class="form-check-label small" for="d_${d}">${d} <span class="text-muted">(${c} values)</span></label></div>`).join('')}
+        <hr><div class="small text-muted">Summary rows for 30 days</div><div class="mono fs-4 fw-bold" id="rows"></div>
+        <div class="bar mt-1"><div class="bar-fill" id="rb" style="transition:width .4s"></div></div><div class="small text-muted mt-1">bar = size compared with 2 billion raw rows (log scale)</div></div></div>
+      <div class="col-lg-8"><div class="panel h-100"><div class="panel-title"><i class="bi bi-graph-up"></i> Failed logins today, at this grain</div><div style="height:250px"><canvas id="cv"></canvas></div><div class="small mt-1" id="msg"></div></div></div></div>`;
+    let ch = null;
+    const upd = () => {
+      const g = $('#gr .active', el).dataset.g, per = { minute: 43200, hour: 720, day: 30 }[g];
+      const dims = $$('.form-check-input', el).filter(c => c.checked).reduce((a, c) => a * +c.dataset.c, 1);
+      const rows = per * dims; $('#rows', el).textContent = fmt(rows);
+      $('#rb', el).style.width = Math.max(3, Math.log10(rows) / Math.log10(2e9) * 100) + '%';
+      $('#rb', el).style.background = rows > 1e6 ? C.rose : rows > 1e5 ? C.acc : C.pri;
+      killChart(ch);
+      const data = g === 'minute' ? minute : g === 'hour' ? hourly : [hourly.reduce((a, b) => a + b, 0)];
+      const labels = g === 'minute' ? minute.map((_, m) => hhmm(m)) : g === 'hour' ? hourly.map((_, h) => pad(h) + ':00') : ['today'];
+      ch = mkChart($('#cv', el), { type: g === 'day' ? 'bar' : 'line', data: { labels, datasets: [{ data, borderColor: C.rose, backgroundColor: g === 'day' ? C.rose : 'rgba(211,60,107,.12)', fill: g !== 'day', pointRadius: g === 'hour' ? 3 : 0, borderWidth: g === 'minute' ? 1.2 : 2.5, tension: .25, borderRadius: 8, maxBarThickness: 120 }] },
+        options: { maintainAspectRatio: false, animation: { duration: 500 }, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxTicksLimit: 12 } }, y: { beginAtZero: true } } } });
+      $('#msg', el).innerHTML = g === 'day' ? '<span style="color:#a12a50">One number for the whole day. The burst at 03:00 is invisible.</span>' : g === 'hour' ? 'Hourly: the 03:00 burst is clearly visible, with a small table. A good fit for “per hour” questions.' : 'Every minute: full detail, including the burst’s exact start, but many more rows to store and query.';
+    };
+    $$('#gr button', el).forEach(b => b.onclick = () => { $$('#gr button', el).forEach(x => x.classList.toggle('active', x === b)); upd(); });
+    $$('.form-check-input', el).forEach(c => c.onchange = upd);
+    upd();
+  }
+},
+{
+  short: 'Serve the results', title: 'Write the summary where Metabase can read it',
+  lead: 'Spark writes its summary into a SQL database that Metabase queries. How it writes matters.',
+  html: `<p>Spark is great at crunching data, but a dashboard needs a place that answers small queries <b>instantly</b>. A common choice is a regular SQL database such as <b>PostgreSQL</b>: Spark writes the summary table into it over a database connection (JDBC), and Metabase reads from it.</p>
+  <p>The <b>write mode</b> decides what happens on the next run:</p>
+  <ul><li><b>Overwrite</b> replaces the table with fresh results. Safe when each run recomputes the whole period.</li>
+  <li><b>Append</b> adds rows. Correct only when each run writes <i>new</i> periods (for example, only yesterday). Re-appending the same period creates duplicates, and every chart silently doubles.</li></ul>
+  <p>Press <b>Run the nightly job</b> twice in each mode and watch the table.</p>
+  <p>Metabase can also query Spark SQL or engines like Trino directly, but a small table in PostgreSQL is the simplest fast option.</p>`,
+  key: 'Serve a small table from a SQL database, and choose overwrite or append deliberately.',
+  terms: ['JDBC', 'PostgreSQL', 'mode("overwrite")', 'mode("append")', 'schedule'],
+  vis(el){
+    el.innerHTML = `<div class="panel mb-3"><div class="fwrap"><div class="flow" id="flow"><div class="flow-track"></div><div class="pkt" id="pk" style="background:${C.pri}"></div>
+      <div class="node n-acc"><i class="bi bi-lightning-charge-fill"></i>Spark job<small>nightly, 02:00</small></div>
+      <div class="node n-pri"><i class="bi bi-plug-fill"></i>JDBC write<small id="wm">mode: overwrite</small></div>
+      <div class="node n-cy"><i class="bi bi-database-fill"></i>PostgreSQL<small>daily_event_summary</small></div>
+      <div class="node n-green"><i class="bi bi-bar-chart-fill"></i>Metabase<small>reads with SQL</small></div></div></div></div>
+      <div class="row g-3"><div class="col-md-5"><div class="panel h-100">
+        <div class="small fw-bold mb-1">Write mode</div><div class="btn-group btn-group-sm mb-3" id="mode"><button class="btn btn-seg active" data-m="overwrite">Overwrite</button><button class="btn btn-seg" data-m="append">Append</button></div>
+        <div><button class="btn btn-brand btn-sm" id="run"><i class="bi bi-play-fill"></i> Run the nightly job</button> <span class="small text-muted ms-2" id="runs">runs: 0</span></div>
+        <div class="small mt-3" id="note">Each run recomputes the last 3 days.</div>
+        <div class="mt-2"><div class="small text-muted">Dashboard shows failed logins on Friday</div><div class="mono fs-3 fw-bold" id="kpi">no data</div></div></div></div>
+      <div class="col-md-7"><div class="panel h-100"><div class="panel-title"><i class="bi bi-table"></i> daily_event_summary</div>
+        <div style="max-height:230px;overflow:auto"><table class="dtable"><thead><tr><th>day</th><th>event_type</th><th>event_count</th><th>written by</th></tr></thead><tbody id="tb"><tr><td colspan="4" class="text-muted" style="font-family:Manrope">empty</td></tr></tbody></table></div></div></div></div>`;
+    let mode = 'overwrite', runs = 0, rows = [];
+    const days = ['Thu', 'Fri', 'Sat'], vals = { Thu: 2911, Fri: 3054, Sat: 3870 };
+    const draw = (fresh) => {
+      const seen = {};
+      $('#tb', el).innerHTML = rows.map(r => { const dup = seen[r.day]; seen[r.day] = 1; return `<tr class="${dup ? 'dup' : (fresh.includes(r) ? 'new' : '')}"><td>${r.day}</td><td>failed_login</td><td>${fmt(r.v)}</td><td>run ${r.run}${dup ? ' <span style="color:#d33c6b;font-family:Manrope;font-weight:700">duplicate</span>' : ''}</td></tr>`; }).join('');
+      const fri = rows.filter(r => r.day === 'Fri').reduce((a, r) => a + r.v, 0);
+      $('#kpi', el).textContent = fri ? fmt(fri) : 'no data'; $('#kpi', el).style.color = rows.filter(r => r.day === 'Fri').length > 1 ? C.rose : C.ink;
+    };
+    $$('#mode button', el).forEach(b => b.onclick = () => { mode = b.dataset.m; $$('#mode button', el).forEach(x => x.classList.toggle('active', x === b)); runs = 0; rows = []; $('#runs', el).textContent = 'runs: 0'; $('#wm', el).textContent = 'mode: ' + mode; $('#tb', el).innerHTML = '<tr><td colspan="4" class="text-muted" style="font-family:Manrope">empty</td></tr>'; $('#kpi', el).textContent = 'no data'; $('#kpi', el).style.color = C.ink; });
+    $('#run', el).onclick = () => {
+      runs++; $('#runs', el).textContent = 'runs: ' + runs;
+      const nodes = $$('.node', el), f = $('#flow', el), tl = gsap.timeline();
+      tl.set('#pk', { x: nodes[0].offsetLeft + nodes[0].offsetWidth / 2, opacity: 1 });
+      nodes.slice(1).forEach(n => tl.to('#pk', { x: n.offsetLeft + n.offsetWidth / 2, duration: .5, ease: 'power1.inOut' }).to(n, { scale: 1.08, duration: .12, yoyo: true, repeat: 1 }));
+      tl.to('#pk', { opacity: 0, duration: .2 });
+      tl.call(() => {
+        const fresh = days.map(d => ({ day: d, v: vals[d], run: runs }));
+        rows = mode === 'overwrite' ? fresh : rows.concat(fresh); draw(fresh);
+        $('#note', el).innerHTML = mode === 'append' && runs > 1 ? '<span style="color:#a12a50"><b>Same days appended again.</b> Friday is now counted ' + runs + ' times.</span>' : 'Each run recomputes the last 3 days.';
+      }, null, 1.6);
+    };
+  }
+},
+{
+  short: 'Connect Metabase', title: 'Connect Metabase to the database',
+  lead: 'Metabase connects once, learns the tables and columns, and from then on anyone can ask questions without writing SQL.',
+  html: `<p>An admin adds the database in Metabase: the database type, where it lives, its name and a <b>read-only</b> user. Read-only matters: a dashboard tool should never be able to change the data.</p>
+  <p>Metabase then <b>syncs</b>: it reads the list of tables and columns, and <b>scans</b> some values so it can offer filters and pick sensible charts. It also guesses a <b>semantic type</b> for each column, such as “creation timestamp”, “category” or “quantity”. Check those guesses; they decide how Metabase groups and charts the column.</p>
+  <p>Press <b>Save and sync</b>.</p>`,
+  key: 'Connect with a read-only user, let Metabase sync, then check how it understood each column.',
+  terms: ['Admin → Databases', 'sync', 'scan field values', 'semantic type', 'read-only user'],
+  vis(el){
+    const fields = [['Database type', 'PostgreSQL'], ['Display name', 'SOC summaries'], ['Host', 'analytics-db.internal'], ['Port', '5432'], ['Database name', 'soc'], ['Username', 'metabase_reader (read-only)']];
+    const tables = [['hourly_event_counts', [['hour', 'Creation timestamp'], ['event_type', 'Category'], ['source', 'Category'], ['event_count', 'Quantity']]], ['daily_event_summary', [['day', 'Creation date'], ['event_type', 'Category'], ['event_count', 'Quantity']]]];
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-6"><div class="mb-panel"><div class="mb-top"><span class="dotz"><span></span><span></span><span></span></span> Metabase · Admin · Add a database</div>
+        <div class="p-3">${fields.map(([k, v]) => `<div class="mb-2"><div class="small fw-bold text-muted">${k}</div><div class="fake-input">${v}</div></div>`).join('')}
+        <button class="btn btn-brand btn-sm mt-1" id="go"><i class="bi bi-arrow-repeat"></i> Save and sync</button></div></div></div>
+      <div class="col-lg-6"><div class="panel h-100"><div class="panel-title"><i class="bi bi-list-check"></i> What Metabase does</div>
+        ${['Connect with the read-only user', 'Sync schema: list tables and columns', 'Scan field values for filters', 'Guess semantic types'].map(s => `<div class="check-line"><i class="bi bi-circle"></i><span>${s}</span></div>`).join('')}
+        <hr><div class="small fw-bold text-muted mb-2">Data browser</div><div id="browser" class="small text-muted">Nothing synced yet.</div></div></div></div>`;
+    $('#go', el).onclick = e => {
+      e.currentTarget.disabled = true;
+      const tl = gsap.timeline();
+      $$('.check-line', el).forEach(l => {
+        tl.call(() => { l.querySelector('i').className = 'spinner-border spinner-border-sm text-secondary'; }).to({}, { duration: .7 })
+          .call(() => { l.classList.add('ok'); l.querySelector('i').className = 'bi bi-check-circle-fill'; });
+      });
+      tl.call(() => {
+        $('#browser', el).innerHTML = tables.map(([t, cols]) => `<div class="mb-2"><div class="fw-bold" style="color:${C.ink}"><i class="bi bi-table" style="color:${C.pri}"></i> ${t}</div>${cols.map(([c, s]) => `<div class="d-flex justify-content-between ps-3 py-1 border-bottom"><span class="mono" style="color:${C.ink}">${c}</span><span class="semchip">${s}</span></div>`).join('')}</div>`).join('');
+        gsap.from($$('#browser .border-bottom', el), { opacity: 0, x: 10, stagger: .06 });
+      });
+    };
+  }
+},
+{
+  short: 'Ask a question', title: 'Ask a question with the query builder',
+  lead: 'In Metabase a “question” is a saved query plus its chart. Build one by choosing data, filters and a summary.',
+  html: `<p>Metabase’s query builder follows the same steps every time: pick the <b>data</b>, add <b>filters</b>, choose how to <b>summarize</b>, and pick what to group <b>by</b>. Play with the controls; the result updates live.</p>
+  <p><b>The classic trap with pre-aggregated tables:</b> switch Summarize to <i>Count of rows</i>. Metabase now counts <b>rows</b>, and each row is already a summary of an hour. The chart looks plausible but the numbers are wrong. On summary tables, always use <b>Sum of event_count</b>.</p>`,
+  key: 'On a summary table, total the count column (Sum of event_count), never Count of rows.',
+  terms: ['question', 'filter', 'summarize', 'group by', 'Sum of …', 'Count of rows'],
+  vis(el){
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-5"><div class="mb-panel"><div class="mb-top"><span class="dotz"><span></span><span></span><span></span></span> New question</div>
+        <div class="nb-step"><div class="nb-h">Data</div><span class="nb-chip"><i class="bi bi-table"></i> hourly_event_counts</span></div>
+        <div class="nb-step"><div class="nb-h">Filter</div><select class="form-select form-select-sm" id="fT"><option value="all">All event types</option>${TYPES.map(t => `<option value="${t}">event_type is ${t}</option>`).join('')}</select></div>
+        <div class="nb-step"><div class="nb-h">Summarize</div><div class="btn-group btn-group-sm mb-2 w-100" id="ms"><button class="btn btn-seg active" data-m="sum">Sum of event_count</button><button class="btn btn-seg" data-m="count">Count of rows</button></div>
+          <div class="nb-h">by</div><select class="form-select form-select-sm" id="gB"><option value="day">day</option><option value="hour">hour of day</option><option value="source">source</option><option value="type">event_type</option></select></div>
+        <div class="nb-step border-0"><span class="small text-muted">Metabase picks a chart for you: line for time, bar for categories.</span></div></div></div>
+      <div class="col-lg-7"><div class="panel h-100"><div class="panel-title"><i class="bi bi-bar-chart"></i> Result <span class="ms-auto pill" id="tot"></span></div>
+        <div id="warn"></div><div style="height:250px"><canvas id="cv"></canvas></div></div></div></div>`;
+    let ch = null;
+    const upd = () => {
+      const type = $('#fT', el).value, group = $('#gB', el).value, measure = $('#ms .active', el).dataset.m;
+      const q = query({ type, group, measure }); const isTime = group === 'day' || group === 'hour';
+      killChart(ch);
+      const col = measure === 'count' ? '#9a94b8' : (type === 'all' ? C.pri : TCOL[type]);
+      ch = mkChart($('#cv', el), { type: isTime ? 'line' : 'bar', data: { labels: q.labels, datasets: [{ label: measure === 'sum' ? 'Sum of event_count' : 'Count of rows', data: q.values, borderColor: col, backgroundColor: isTime ? col + '22' : (group === 'type' ? q.labels.map(l => TCOL[l]) : col), fill: isTime, tension: .3, pointRadius: isTime ? 2 : 0, borderRadius: 6 }] },
+        options: { maintainAspectRatio: false, animation: { duration: 500 }, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } }, indexAxis: isTime ? 'x' : 'y' } });
+      $('#tot', el).textContent = (measure === 'sum' ? 'total events: ' : 'total rows: ') + fmt(q.values.reduce((a, b) => a + b, 0));
+      $('#warn', el).innerHTML = measure === 'count' ? `<div class="verdict v-bad mb-2"><i class="bi bi-exclamation-triangle-fill"></i> These are <b>row counts</b>, not event counts. Each row already summarizes an hour, so these numbers mean nothing to the SOC.</div>` : '';
+    };
+    ['fT', 'gB'].forEach(id => $('#' + id, el).onchange = upd);
+    $$('#ms button', el).forEach(b => b.onclick = () => { $$('#ms button', el).forEach(x => x.classList.toggle('active', x === b)); upd(); });
+    upd();
+  }
+},
+{
+  short: 'Pick the right chart', title: 'Pick the chart that fits the question',
+  lead: 'The same numbers can be shown many ways. Only some make the answer jump out.',
+  html: `<p>Choose a question, then try each chart type. The verdict explains why it works or not.</p>
+  <ul><li><b>Line</b>: change over time.</li><li><b>Bar</b>: compare categories; sort the bars.</li><li><b>Pie</b>: parts of a whole, only with a few slices.</li><li><b>Number</b>: one headline value, often with a comparison to last week.</li><li><b>Table</b>: when people need exact values to act on.</li></ul>
+  <p>If you have to explain a chart, it is probably the wrong chart.</p>`,
+  key: 'Time → line. Compare → bar. One value → number. Few parts of a whole → pie.',
+  terms: ['visualization type', 'line', 'bar', 'pie', 'number', 'table'],
+  vis(el){
+    const Q = [
+      { q: 'How did daily events change over the week?', d: () => query({ group: 'day' }), r: { line: ['best', 'A line shows the rise and fall across days at a glance.'], bar: ['ok', 'Works, but the trend is easier to read as a line.'], pie: ['bad', 'Days are a sequence in time, not parts of a whole.'], number: ['bad', 'One number hides the trend completely.'], table: ['ok', 'Exact values, but you must read every row to see the trend.'] } },
+      { q: 'Which source produces the most failed logins?', d: () => query({ type: 'failed_login', group: 'source' }), r: { line: ['bad', 'Sources are not a timeline; the connecting line implies a trend that does not exist.'], bar: ['best', 'Bars make the biggest source obvious. Sort them for even faster reading.'], pie: ['ok', 'Four slices are readable, but comparing slice sizes is harder than comparing bars.'], number: ['bad', 'A single number cannot compare sources.'], table: ['ok', 'Correct, but the winner does not jump out.'] } },
+      { q: 'How many malware alerts this week?', d: () => ({ labels: ['malware_alert'], values: [total({ type: 'malware_alert' })] }), r: { line: ['bad', 'There is nothing to trend; one value is being asked for.'], bar: ['bad', 'A single bar has nothing to compare against.'], pie: ['bad', 'A pie with one slice is a circle.'], number: ['best', 'One headline value, readable from across the room.'], table: ['ok', 'Correct, but a big number is faster to read.'] } },
+      { q: 'What share of all events is each type?', d: () => query({ group: 'type' }), r: { line: ['bad', 'Event types are not a timeline.'], bar: ['ok', 'Good for exact comparison; a pie shows “share of total” more directly.'], pie: ['best', 'Parts of a whole with only four slices: exactly what a pie is for.'], number: ['bad', 'Hides how the total splits.'], table: ['ok', 'Exact, but the proportions do not jump out.'] } }];
+    const TY = [['line', 'bi-graph-up'], ['bar', 'bi-bar-chart-fill'], ['pie', 'bi-pie-chart-fill'], ['number', 'bi-123'], ['table', 'bi-table']];
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-5"><div class="panel h-100"><div class="panel-title"><i class="bi bi-chat-square-text"></i> Question</div>${Q.map((x, i) => `<button class="qbtn" data-q="${i}"><i class="bi bi-question-circle-fill"></i><span>${x.q}</span></button>`).join('')}</div></div>
+      <div class="col-lg-7"><div class="panel h-100"><div class="d-flex flex-wrap gap-1 mb-2" id="ty">${TY.map(([t, ic]) => `<button class="btn btn-seg btn-sm" data-t="${t}"><i class="bi ${ic}"></i> ${t}</button>`).join('')}</div>
+        <div id="v" class="verdict mb-2"></div><div id="area" style="height:220px;position:relative"></div></div></div></div>`;
+    let qi = 0, ty = 'line', ch = null;
+    const draw = () => {
+      $$('.qbtn', el).forEach(b => b.classList.toggle('active', +b.dataset.q === qi)); $$('#ty button', el).forEach(b => b.classList.toggle('active', b.dataset.t === ty));
+      const q = Q[qi], d = q.d(), [lv, why] = q.r[ty];
+      $('#v', el).className = 'verdict mb-2 v-' + lv; $('#v', el).innerHTML = `<i class="bi ${lv === 'best' ? 'bi-check-circle-fill' : lv === 'ok' ? 'bi-dash-circle-fill' : 'bi-x-circle-fill'}"></i> ${lv === 'best' ? 'Best fit.' : lv === 'ok' ? 'Works, with a cost.' : 'Poor fit.'} ${why}`;
+      gsap.from('#v', { opacity: 0, y: -4, duration: .25 });
+      killChart(ch); ch = null; const a = $('#area', el);
+      const cols = d.labels.map((l, i) => TCOL[l] || [C.pri, C.acc, C.cy, C.rose, C.green, '#8b6fe0', '#f0a24f'][i % 7]);
+      if (ty === 'number') { a.innerHTML = `<div class="h-100 d-grid" style="place-items:center"><div class="text-center"><div class="bignum" id="bn">0</div><div class="small text-muted mt-2">${d.labels.length > 1 ? 'sum of ' + d.labels.length + ' values' : d.labels[0]}</div></div></div>`; countTo($('#bn', a), d.values.reduce((x, y) => x + y, 0)); }
+      else if (ty === 'table') { a.innerHTML = `<div style="max-height:220px;overflow:auto"><table class="dtable"><thead><tr><th>label</th><th>events</th></tr></thead><tbody>${d.labels.map((l, i) => `<tr><td>${l}</td><td>${fmt(d.values[i])}</td></tr>`).join('')}</tbody></table></div>`; }
+      else {
+        a.innerHTML = '<canvas></canvas>';
+        ch = mkChart($('canvas', a), { type: ty === 'pie' ? 'doughnut' : ty, data: { labels: d.labels, datasets: [{ data: d.values, backgroundColor: ty === 'line' ? C.pri + '22' : cols, borderColor: ty === 'line' ? C.pri : '#fff', fill: ty === 'line', tension: .3, borderRadius: ty === 'bar' ? 6 : 0, borderWidth: ty === 'pie' ? 2 : 2.5 }] },
+          options: { maintainAspectRatio: false, plugins: { legend: { display: ty === 'pie', position: 'right' } }, scales: ty === 'pie' ? {} : { y: { beginAtZero: true } } } });
+      }
+    };
+    $$('.qbtn', el).forEach(b => b.onclick = () => { qi = +b.dataset.q; draw(); });
+    $$('#ty button', el).forEach(b => b.onclick = () => { ty = b.dataset.t; draw(); });
+    draw();
+  }
+},
+{
+  short: 'Lay out the dashboard', title: 'Arrange the cards so the eye reads them in order',
+  lead: 'People read a dashboard like a page: top-left first. Put the most important answers there.',
+  html: `<p>A layout that works for most dashboards:</p>
+  <ul><li><b>Top row</b>: a few headline numbers (KPIs). Is everything OK right now?</li><li><b>Middle</b>: the main trend over time, wide enough to read.</li><li><b>Bottom</b>: breakdowns and detail tables for people who need to dig in.</li></ul>
+  <p>Press <b>Arrange cards</b> to see a pile of saved questions snap into this layout, then <b>Show reading order</b>. Keep it to a handful of cards; every extra card makes the important ones harder to find.</p>`,
+  key: 'Headline numbers on top, trend in the middle, details at the bottom. Fewer cards is better.',
+  terms: ['dashboard', 'card', 'KPI', 'layout grid'],
+  vis(el){
+    const k1 = total({}), k2 = total({ type: 'failed_login' }), k3 = total({ type: 'malware_alert' });
+    el.innerHTML = `<div class="d-flex gap-2 justify-content-center mb-3 flex-wrap"><button class="btn btn-brand btn-sm" id="arr"><i class="bi bi-grid-1x2-fill"></i> Arrange cards</button><button class="btn btn-ghost btn-sm" id="ord"><i class="bi bi-sort-numeric-down"></i> Show reading order</button></div>
+      <div class="dash" id="dash">
+        <div class="dcard s2"><span class="ord">1</span><div class="dt">Events this week</div><div class="dv">${fmt(k1)}</div><div class="small" style="color:${C.rose}">▲ 6% vs last week</div></div>
+        <div class="dcard s2"><span class="ord">2</span><div class="dt">Failed logins</div><div class="dv" style="color:${C.rose}">${fmt(k2)}</div><div class="small text-muted">spike Saturday 01:00–05:00</div></div>
+        <div class="dcard s2"><span class="ord">3</span><div class="dt">Malware alerts</div><div class="dv" style="color:${C.cy}">${fmt(k3)}</div><div class="small text-muted">needs triage</div></div>
+        <div class="dcard s4"><span class="ord">4</span><div class="dt">Events per day by type</div><div style="height:170px"><canvas id="c1"></canvas></div></div>
+        <div class="dcard s2"><span class="ord">5</span><div class="dt">Failed logins by source</div><div style="height:170px"><canvas id="c2"></canvas></div></div>
+        <div class="dcard s6"><span class="ord">6</span><div class="dt">Busiest hours this week (detail)</div><table class="dtable mt-1"><thead><tr><th>day</th><th>hour</th><th>event_type</th><th>events</th></tr></thead><tbody>${HOURLY.slice().sort((a, b) => b.v - a.v).slice(0, 3).map(r => `<tr><td>${DAYS[r.d]}</td><td>${pad(r.h)}:00</td><td>${r.t}</td><td>${fmt(r.v)}</td></tr>`).join('')}</tbody></table></div>
+      </div>`;
+    mkChart($('#c1', el), { type: 'line', data: { labels: DAYS, datasets: TYPES.slice(0, 3).map(t => ({ label: t, data: query({ type: t, group: 'day' }).values, borderColor: TCOL[t], backgroundColor: TCOL[t], tension: .3, pointRadius: 0, borderWidth: 2 })) }, options: lineOpts({ plugins: { legend: { position: 'right', labels: { font: { size: 10 } } } } }) });
+    const s = query({ type: 'failed_login', group: 'source' });
+    mkChart($('#c2', el), { type: 'bar', data: { labels: s.labels, datasets: [{ data: s.values, backgroundColor: C.rose, borderRadius: 4 }] }, options: barOpts({ indexAxis: 'y' }) });
+    const cards = $$('.dcard', el);
+    const pile = () => { cards.forEach((c, i) => gsap.set(c, { x: (Math.random() - .5) * 260, y: (Math.random() - .5) * 120, rotation: (Math.random() - .5) * 18, opacity: .9, scale: .9 })); };
+    pile();
+    let shown = false;
+    $('#arr', el).onclick = () => { pile(); gsap.to(cards, { x: 0, y: 0, rotation: 0, opacity: 1, scale: 1, duration: .8, ease: 'power3.out', stagger: .1 }); };
+    $('#ord', el).onclick = () => { shown = !shown; gsap.to($$('.ord', el), { opacity: shown ? 1 : 0, scale: shown ? 1 : .5, stagger: .12, duration: .3 }); };
+  }
+},
+{
+  short: 'Add filters', title: 'One filter, many cards',
+  lead: 'Dashboard filters let people narrow every card at once, but only cards that are wired to the filter will listen.',
+  html: `<p>A dashboard <b>filter</b> sits at the top and is <b>connected</b> to the matching column on each card: the date filter to the time column, the event-type filter to <code>event_type</code>.</p>
+  <p>Change the filters and watch the cards follow. Then untick <b>Wire the source chart to the filters</b>. That card stops listening and keeps showing the full week for all types, while the others change. Viewers have no way to notice, which is how wrong decisions get made.</p>
+  <p>After adding a filter, check every card. Metabase shows which cards are connected when you edit the filter.</p>`,
+  key: 'Wire each filter to every card it should affect, and check it. A forgotten card silently lies.',
+  terms: ['dashboard filter', 'filter wiring', 'date filter', 'category filter'],
+  vis(el){
+    el.innerHTML = `<div class="filterbar"><i class="bi bi-funnel-fill" style="color:${C.pri}"></i>
+        <select class="form-select form-select-sm" style="width:auto" id="fR"><option value="7d">Last 7 days</option><option value="24h">Last 24 hours</option></select>
+        <select class="form-select form-select-sm" style="width:auto" id="fT"><option value="all">All event types</option>${TYPES.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
+        <div class="form-check form-switch ms-md-auto mb-0"><input class="form-check-input" type="checkbox" id="wire" checked><label class="form-check-label small fw-bold" for="wire">Wire the source chart to the filters</label></div></div>
+      <div class="dash">
+        <div class="dcard s2"><span class="linkchip tag tag-green"><i class="bi bi-link-45deg"></i> wired</span><div class="dt">Events</div><div class="dv" id="k">0</div><div class="small text-muted" id="kd"></div></div>
+        <div class="dcard s4"><span class="linkchip tag tag-green"><i class="bi bi-link-45deg"></i> wired</span><div class="dt">Events over time</div><div style="height:150px"><canvas id="c1"></canvas></div></div>
+        <div class="dcard s6" id="srcCard"><span class="linkchip tag tag-green" id="wc"><i class="bi bi-link-45deg"></i> wired</span><div class="dt">Events by source</div><div style="height:150px"><canvas id="c2"></canvas></div></div></div>`;
+    const c1 = mkChart($('#c1', el), { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: C.pri, backgroundColor: C.pri + '22', fill: true, tension: .3, pointRadius: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { ticks: { maxTicksLimit: 8 } } } } });
+    const c2 = mkChart($('#c2', el), { type: 'bar', data: { labels: SRC, datasets: [{ data: [], backgroundColor: C.pri, borderRadius: 5 }] }, options: barOpts({ indexAxis: 'y' }) });
+    const upd = () => {
+      const range = $('#fR', el).value, type = $('#fT', el).value, wired = $('#wire', el).checked;
+      const q = query({ type, range, group: range === '24h' ? 'hour' : 'day' }), col = type === 'all' ? C.pri : TCOL[type];
+      c1.data.labels = q.labels; c1.data.datasets[0].data = q.values; c1.data.datasets[0].borderColor = col; c1.data.datasets[0].backgroundColor = col + '22'; c1.update();
+      const s = wired ? query({ type, range, group: 'source' }) : query({ group: 'source' });
+      c2.data.datasets[0].data = s.values; c2.data.datasets[0].backgroundColor = wired ? col : '#b3aecb'; c2.update();
+      const kv = q.values.reduce((a, b) => a + b, 0); countTo($('#k', el), kv, { dur: .6 }); $('#k', el).style.color = col;
+      $('#kd', el).textContent = (type === 'all' ? 'all types' : type) + ', ' + (range === '7d' ? 'last 7 days' : 'last 24 hours');
+      $('#wc', el).className = 'linkchip tag ' + (wired ? 'tag-green' : 'tag-rose'); $('#wc', el).innerHTML = wired ? '<i class="bi bi-link-45deg"></i> wired' : '<i class="bi bi-x-lg"></i> not wired: still all data';
+      $('#srcCard', el).classList.toggle('vanity', !wired);
+    };
+    ['fR', 'fT', 'wire'].forEach(id => $('#' + id, el).onchange = upd); upd();
+  }
+},
+{
+  short: 'Freshness', title: 'A dashboard is only as fresh as the last Spark run',
+  lead: 'Metabase shows whatever is in the summary table. If the Spark job ran at 02:00, the afternoon dashboard shows this morning’s world.',
+  html: `<p>The chart shows the <b>age of the data</b> on the dashboard across a day. It drops to zero when the Spark job runs and then grows until the next run, like a saw blade.</p>
+  <p>Change the schedule and drag the “now” slider. More frequent runs keep the data fresher but cost more cluster time. Metabase can also <b>cache</b> query results, which adds a little extra delay of its own.</p>
+  <p>For “how many attacks this week?”, hourly or daily is plenty. For “is someone attacking us <i>right now</i>?”, even hourly is far too slow. That needs a different design, a streaming pipeline, which is the next lesson.</p>`,
+  key: 'Batch dashboards are as old as the last job run. Match the schedule to the question, and use streaming for “right now” questions.',
+  terms: ['schedule', 'data freshness', 'query caching', 'batch vs streaming'],
+  vis(el){
+    const SCH = { daily: [2], six: [2, 8, 14, 20], hourly: Array.from({ length: 24 }, (_, h) => h + .08) };
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-8"><div class="panel h-100"><div class="d-flex align-items-center gap-2 flex-wrap mb-2"><span class="small fw-bold">Spark job schedule</span><div class="btn-group btn-group-sm" id="sc"><button class="btn btn-seg active" data-s="daily">Daily 02:00</button><button class="btn btn-seg" data-s="six">Every 6 h</button><button class="btn btn-seg" data-s="hourly">Hourly</button></div></div>
+        <div style="height:220px"><canvas id="cv"></canvas></div>
+        <label class="small fw-bold mt-2">Now: <span class="badge-dark" id="nowL">15:30</span></label><input type="range" min="0" max="95" value="62" id="now"></div></div>
+      <div class="col-lg-4"><div class="panel h-100"><div class="dcard mb-3"><div class="dt">Dashboard footer</div><div class="small mt-1">Data updated at <b class="mono" id="upd"></b></div></div>
+        <div class="stat mb-2"><div class="l">Data age right now</div><div class="v" id="age"></div></div>
+        <div class="stat"><div class="l">Spark runs per day</div><div class="v" id="runs"></div></div>
+        <div class="small text-muted mt-2" id="msg"></div></div></div></div>`;
+    let ch = null;
+    const ageAt = (h, runs) => { const past = runs.filter(r => r <= h); const last = past.length ? past[past.length - 1] : runs[runs.length - 1] - 24; return { age: h - last, last: (last + 24) % 24 }; };
+    const upd = () => {
+      const s = $('#sc .active', el).dataset.s, runs = SCH[s], nowH = +$('#now', el).value / 4;
+      const pts = []; for (let h = 0; h <= 24; h += .25) pts.push({ x: h, y: ageAt(h, runs).age });
+      if (!ch) ch = mkChart($('#cv', el), { type: 'scatter', data: { datasets: [{ label: 'data age (hours)', data: pts, showLine: true, borderColor: C.pri, backgroundColor: C.pri + '1a', fill: 'origin', pointRadius: 0, borderWidth: 2, stepped: false }, { label: 'now', data: [], pointRadius: 7, pointBackgroundColor: C.acc, pointBorderColor: '#fff', pointBorderWidth: 2 }] },
+        options: { maintainAspectRatio: false, animation: { duration: 400 }, plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 24, ticks: { stepSize: 3, callback: v => pad(v) + ':00' } }, y: { beginAtZero: true, title: { display: true, text: 'data age (hours)' } } } } });
+      ch.data.datasets[0].data = pts; const a = ageAt(nowH, runs); ch.data.datasets[1].data = [{ x: nowH, y: a.age }]; ch.update();
+      $('#nowL', el).textContent = hhmm(nowH * 60); $('#upd', el).textContent = hhmm(a.last * 60);
+      $('#age', el).textContent = a.age < 1 ? Math.round(a.age * 60) + ' min' : a.age.toFixed(1) + ' h'; $('#runs', el).textContent = runs.length;
+      $('#msg', el).textContent = a.age > 6 ? 'Anything that happened since then is invisible on the dashboard.' : 'Fresher, but each run costs cluster time.';
+    };
+    $$('#sc button', el).forEach(b => b.onclick = () => { $$('#sc button', el).forEach(x => x.classList.toggle('active', x === b)); upd(); });
+    $('#now', el).oninput = upd; upd();
+  }
+},
+{
+  short: 'Review the dashboard', title: 'Does every card answer a question?',
+  lead: 'Finish by checking the dashboard against the questions you started with. Remove what answers nothing.',
+  html: `<p>Click each question on the left; the card that answers it lights up. One card answers none of them: “Rows processed by Spark”. It is a <b>vanity metric</b>: big, impressive and useless to the SOC manager. Press <b>Review the dashboard</b> to run through the checklist.</p>
+  <p>Before you share a dashboard, check: every card maps to a question, the right chart type, filters wired correctly, sums instead of row counts, freshness shown on the page, and a clear title that says what and when.</p>`,
+  key: 'Every card should answer a real question. Remove the rest, however impressive they look.',
+  terms: ['vanity metric', 'review', 'share / subscribe', 'dashboard description'],
+  vis(el){
+    const Q = [['Is activity rising this week?', 'trend'], ['Which source causes most failed logins?', 'src'], ['How many malware alerts this week?', 'mal'], ['Are failed logins unusual today?', 'fl']];
+    const checks = ['Every card answers one of the questions', 'Chart type fits each question', 'Filters wired to every card', 'Sums of event_count, not row counts', '“Data updated at” shown on the page', 'Clear title: what, for whom, which period'];
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-4"><div class="panel h-100"><div class="panel-title"><i class="bi bi-chat-square-text"></i> The questions</div>${Q.map(([q, k]) => `<button class="qbtn" data-k="${k}"><i class="bi bi-question-circle-fill"></i><span>${q}</span></button>`).join('')}</div></div>
+      <div class="col-lg-8"><div class="dash mb-3" style="grid-template-columns:repeat(4,1fr)">
+        <div class="dcard s2" data-k="trend"><div class="dt">Events per day</div><div style="height:90px"><canvas id="c1"></canvas></div></div>
+        <div class="dcard s2" data-k="src"><div class="dt">Failed logins by source</div><div style="height:90px"><canvas id="c2"></canvas></div></div>
+        <div class="dcard" data-k="mal"><div class="dt">Malware alerts</div><div class="dv" style="color:${C.cy}">${fmt(total({ type: 'malware_alert' }))}</div></div>
+        <div class="dcard" data-k="fl"><div class="dt">Failed logins today</div><div class="dv" style="color:${C.rose}">${fmt(total({ type: 'failed_login', range: '24h' }))}</div><div class="small text-muted">normal range</div></div>
+        <div class="dcard s2" data-k="vanity" id="van"><div class="dt">Rows processed by Spark</div><div class="dv">2,000,000,000</div><div class="small text-muted">impressive, but so what?</div></div></div>
+        <div class="panel"><div class="d-flex justify-content-between align-items-center mb-2"><div class="panel-title mb-0"><i class="bi bi-clipboard-check"></i> Pre-share checklist</div><button class="btn btn-brand btn-sm" id="go"><i class="bi bi-search"></i> Review the dashboard</button></div>
+        <div class="row">${checks.map(c => `<div class="col-md-6"><div class="check-line"><i class="bi bi-circle"></i><span>${c}</span></div></div>`).join('')}</div></div></div></div>`;
+    mkChart($('#c1', el), { type: 'line', data: { labels: DAYS, datasets: [{ data: query({ group: 'day' }).values, borderColor: C.pri, tension: .3, pointRadius: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } });
+    const s = query({ type: 'failed_login', group: 'source' });
+    mkChart($('#c2', el), { type: 'bar', data: { labels: SRC, datasets: [{ data: s.values, backgroundColor: C.rose, borderRadius: 3 }] }, options: { maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { font: { size: 9 } } } } } });
+    $$('.qbtn', el).forEach(b => b.onclick = () => { $$('.qbtn', el).forEach(x => x.classList.toggle('active', x === b)); $$('.dcard', el).forEach(c => c.classList.toggle('glow', c.dataset.k === b.dataset.k)); gsap.fromTo(`.dcard[data-k="${b.dataset.k}"]`, { scale: .97 }, { scale: 1, duration: .3 }); });
+    $('#go', el).onclick = e => {
+      e.currentTarget.disabled = true; const tl = gsap.timeline();
+      tl.call(() => $('#van', el).classList.add('vanity')).to('#van', { x: -6, duration: .07, repeat: 5, yoyo: true }).to('#van', { opacity: 0, scale: .9, duration: .4, delay: .4 }).call(() => $('#van', el).style.display = 'none');
+      $$('.check-line', el).forEach(l => tl.call(() => { l.classList.add('ok'); l.querySelector('i').className = 'bi bi-check-circle-fill'; }).from(l, { x: 8, duration: .2 }));
+    };
+  }
+}];
+
+/* =========================================================
+   LESSON 2 · Visualizing real-time data streams
+   ========================================================= */
+const L2 = [
+{
+  short: 'Why real-time?', title: 'Some questions cannot wait for tonight’s batch job',
+  lead: '“Is someone brute-forcing our VPN right now?” needs an answer in seconds, not tomorrow morning.',
+  html: `<p>Watch the two dashboards. Both show failed logins per minute. The <b>batch</b> one was last updated at 06:00 by the nightly job. The <b>streaming</b> one updates every few seconds from a live pipeline.</p>
+  <p>After a few seconds, an attacker starts guessing passwords. The streaming panel shows the spike almost immediately. The batch panel will not know until its next run.</p>
+  <p>In this lesson we build the live version: <b>Spark Structured Streaming</b> reads events as they arrive, aggregates them continuously, writes results to a <b>sink</b>, and <b>Grafana</b> charts that sink live.</p>`,
+  key: 'Batch answers “what happened?”. Streaming answers “what is happening?”.',
+  terms: ['Structured Streaming', 'sink', 'Grafana', 'latency'],
+  vis(el){
+    el.innerHTML = `<div class="row g-3">${[['b', 'Batch dashboard', 'bi-moon-stars', 'updated 06:00 · next update in 17 h'], ['s', 'Streaming dashboard', 'bi-broadcast', 'live · refreshes every 5 s']].map(([k, t, ic, sub]) => `
+      <div class="col-md-6"><div class="panel h-100" id="p${k}"><div class="panel-title"><i class="bi ${ic}"></i> ${t} <span class="ms-auto pill">${sub}</span></div>
+        <div class="d-flex align-items-end gap-3"><div><div class="small text-muted">Failed logins, last minute</div><div class="bignum" style="font-size:2.6rem" id="v${k}">0</div></div><div id="al${k}" class="mb-2"></div></div>
+        <div style="height:150px" class="mt-2"><canvas id="c${k}"></canvas></div></div></div>`).join('')}</div>`;
+    const base = Array.from({ length: 20 }, () => 18 + Math.round(Math.random() * 8));
+    const mk = (id, data) => mkChart($(id, el), { type: 'line', data: { labels: data.map((_, i) => i), datasets: [{ data: data.slice(), borderColor: C.rose, backgroundColor: C.rose + '18', fill: true, tension: .3, pointRadius: 0 }] }, options: { maintainAspectRatio: false, animation: { duration: 300 }, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { min: 0, max: 160 } } } });
+    const cb = mk('#cb', base), cs = mk('#cs', base);
+    $('#vb', el).textContent = base[base.length - 1]; $('#vs', el).textContent = base[base.length - 1];
+    let tick = 0;
+    every(() => {
+      tick++; const atk = tick % 26 >= 7 && tick % 26 <= 16;
+      const v = atk ? 110 + Math.round(Math.random() * 35) : 16 + Math.round(Math.random() * 10);
+      const d = cs.data.datasets[0].data; d.push(v); d.shift(); cs.data.datasets[0].borderColor = atk ? C.rose : C.pri; cs.data.datasets[0].backgroundColor = (atk ? C.rose : C.pri) + '18'; cs.update();
+      $('#vs', el).textContent = v; $('#vs', el).style.color = atk ? C.rose : C.ink;
+      $('#als', el).innerHTML = atk ? '<span class="state-pill st-firing"><i class="bi bi-exclamation-triangle-fill"></i> brute force?</span>' : '';
+      $('#alb', el).innerHTML = atk ? '<span class="small text-muted">still showing 06:00 data…</span>' : '';
+    }, 900);
+    cb.data.datasets[0].borderColor = '#9a94b8'; cb.data.datasets[0].backgroundColor = '#9a94b818'; cb.update();
+  }
+},
+{
+  short: 'An endless table', title: 'Structured Streaming: a table that never stops growing',
+  lead: 'Spark treats a stream as a table where new rows keep arriving. You write the query once; Spark keeps the answer up to date.',
+  html: `<p>The left table is the <b>input table</b>. In streaming it is <b>unbounded</b>: rows are appended forever, and there is no “last row”.</p>
+  <p>We describe the query exactly as we would on a normal table, here “count events by type”. Spark runs it <b>incrementally</b>: it keeps the running counts in memory (its <b>state</b>) and only processes the new rows each time, instead of recounting everything from the start.</p>
+  <p>The right table is the <b>result table</b>. Watch which numbers flash as new rows arrive.</p>`,
+  key: 'Same query as batch, applied to an endless table, updated incrementally using saved state.',
+  terms: ['readStream', 'unbounded table', 'incremental query', 'state', 'result table'],
+  vis(el){
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-7"><div class="panel h-100"><div class="panel-title"><i class="bi bi-arrow-down-circle"></i> Input table (unbounded) <span class="ms-auto pill" id="n">0 rows so far</span></div>
+        <table class="dtable"><thead><tr><th>event_time</th><th>src_ip</th><th>event_type</th></tr></thead><tbody id="in"></tbody></table>
+        <div class="small text-muted mt-1"><i class="bi bi-three-dots"></i> more rows keep arriving…</div></div></div>
+      <div class="col-lg-5"><div class="panel h-100"><div class="panel-title"><i class="bi bi-calculator"></i> Result table: count by event_type</div>
+        <table class="dtable"><thead><tr><th>event_type</th><th>count</th></tr></thead><tbody>${TYPES.map(t => `<tr id="r_${t}"><td><span class="legend-dot" style="background:${TCOL[t]}"></span>${t}</td><td class="fw-bold" id="c_${t}">0</td></tr>`).join('')}</tbody></table>
+        <div class="small text-muted mt-3">Spark only added the new rows to the saved counts. It never re-read the old ones.</div></div></div></div>`;
+    const r = mulberry32(12), W = [.5, .28, .07, .15]; let n = 0, sec = 10 * 3600; const cnt = {};
+    const add = () => {
+      sec += 1 + Math.floor(r() * 2); let x = r(), k = 0; while (x > W[k]) { x -= W[k]; k++; } const t = TYPES[k];
+      n++; cnt[t] = (cnt[t] || 0) + 1;
+      const tr = document.createElement('tr'); tr.className = 'new';
+      tr.innerHTML = `<td>${new Date(sec * 1000).toISOString().substr(11, 8)}</td><td>${t === 'failed_login' || t === 'port_scan' ? '185.' + Math.floor(r() * 200) : '10.0'}.${Math.floor(r() * 250)}.${Math.floor(r() * 250)}</td><td style="color:${TCOL[t]}">${t}</td>`;
+      const tb = $('#in', el); tb.appendChild(tr); gsap.from(tr, { opacity: 0, y: 10, duration: .3 });
+      later(() => tr.classList.remove('new'), 700);
+      while (tb.children.length > 7) tb.firstElementChild.remove();
+      $('#n', el).textContent = fmt(n) + ' rows so far'; $('#c_' + t, el).textContent = cnt[t];
+      gsap.fromTo('#r_' + t, { backgroundColor: TCOL[t] + '33' }, { backgroundColor: 'rgba(0,0,0,0)', duration: .8 });
+    };
+    for (let i = 0; i < 4; i++) add(); every(add, 850);
+  }
+},
+{
+  short: 'The source: Kafka', title: 'Where live events come from: a Kafka topic',
+  lead: 'Firewalls and servers publish events into a Kafka topic. Spark reads from it and remembers how far it has read.',
+  html: `<p><b>Kafka</b> is a durable message log. Producers (firewall, VPN, web servers) keep appending messages to a <b>topic</b>. A topic is split into <b>partitions</b> so it can grow and be read in parallel. Each message gets a position number in its partition: its <b>offset</b>.</p>
+  <p>Spark Structured Streaming reads the topic in small batches. Each batch it notes which offsets it read in each partition (faded boxes). Those offsets are how Spark knows where to resume after a restart; we will come back to that in the checkpoint step.</p>`,
+  key: 'Kafka keeps the events in order with offsets; Spark tracks which offsets it has read.',
+  terms: ['Kafka topic', 'partition', 'offset', 'format("kafka")', 'startingOffsets'],
+  vis(el){
+    const PR = [['Firewall', C.acc], ['VPN', C.rose], ['Web server', C.cy]];
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-8"><div class="panel h-100"><div class="panel-title"><i class="bi bi-collection"></i> Topic: security-events <span class="ms-auto small text-muted">${PR.map(p => `<span class="me-2"><span class="legend-dot" style="background:${p[1]}"></span>${p[0]}</span>`).join('')}</span></div>
+        ${[0, 1, 2].map(p => `<div class="lane"><span class="lname">partition ${p}</span><div class="msgs" id="l${p}"></div></div>`).join('')}
+        <div class="small text-muted">Numbers are offsets. Faded = already read by Spark.</div></div></div>
+      <div class="col-lg-4"><div class="panel h-100"><div class="text-center mb-2"><span class="node n-pri" id="sp"><i class="bi bi-lightning-charge-fill"></i>Spark query<small>reads every 3 s</small></span></div>
+        <div class="small fw-bold text-muted">Offsets read per batch</div><div class="feed" id="feed"></div></div></div></div>`;
+    const next = [0, 0, 0], read = [-1, -1, -1]; let b = 0;
+    const push = () => {
+      const p = Math.floor(Math.random() * 3), pr = PR[Math.floor(Math.random() * 3)];
+      const m = document.createElement('div'); m.className = 'msg'; m.style.background = pr[1]; m.textContent = next[p]; m.dataset.o = next[p]; next[p]++;
+      const lane = $('#l' + p, el); lane.appendChild(m); gsap.from(m, { x: 30, opacity: 0, duration: .3 });
+      while (lane.children.length > 13) lane.firstElementChild.remove();
+    };
+    const batch = () => {
+      b++; const parts = [0, 1, 2].map(p => { const from = read[p] + 1, to = next[p] - 1; read[p] = Math.max(read[p], to); $$('#l' + p + ' .msg', el).forEach(m => { if (+m.dataset.o <= read[p]) m.classList.add('read'); }); return to >= from ? `p${p}: ${from}→${to}` : `p${p}: none`; });
+      gsap.fromTo('#sp', { scale: 1 }, { scale: 1.1, yoyo: true, repeat: 1, duration: .15 });
+      const f = $('#feed', el), d = document.createElement('div'); d.innerHTML = `<b>batch ${b}</b> · ${parts.join(' · ')}`; f.prepend(d); gsap.from(d, { opacity: 0, x: -10 });
+      while (f.children.length > 7) f.lastElementChild.remove();
+    };
+    for (let i = 0; i < 8; i++) push();
+    every(push, 380); every(batch, 3000);
+  }
+},
+{
+  short: 'Micro-batches', title: 'Micro-batches and the trigger interval',
+  lead: 'By default Spark processes the stream in small batches. The trigger interval decides how often a batch starts.',
+  html: `<p>Each dot is an event arriving during one minute. Spark collects whatever arrived since the last batch and processes it together: a <b>micro-batch</b>. Pick a trigger interval and press <b>Play</b>.</p>
+  <ul><li><b>Short interval</b> (2 s): results appear quickly, but Spark starts many small batches, each with some fixed overhead.</li>
+  <li><b>Long interval</b> (20 s): efficient, bigger batches, but an event can wait up to 20 s before it is even processed.</li></ul>
+  <p>The interval you choose here is a floor on how fresh your Grafana panel can ever be.</p>`,
+  key: 'Trigger interval = how often a micro-batch runs. Shorter is fresher; longer is more efficient.',
+  terms: ['micro-batch', 'trigger(processingTime="5 seconds")', 'batch duration', 'latency'],
+  vis(el){
+    const r = mulberry32(4), evs = Array.from({ length: 90 }, () => ({ t: r() * 60, y: 18 + r() * 44 }));
+    const X = t => 30 + t * (660 / 60);
+    el.innerHTML = `<div class="panel"><div class="d-flex align-items-center gap-2 flex-wrap mb-2"><span class="small fw-bold">Trigger every</span><div class="btn-group btn-group-sm" id="iv">${[2, 5, 10, 20].map(v => `<button class="btn btn-seg ${v === 5 ? 'active' : ''}" data-v="${v}">${v} s</button>`).join('')}</div><button class="btn btn-brand btn-sm ms-auto" id="play"><i class="bi bi-play-fill"></i> Play one minute</button></div>
+      <div id="svg"></div>
+      <div class="row g-2 mt-1">${[['Micro-batches per minute', 'bpm'], ['Average wait before processing', 'wait'], ['Typical event-to-result delay', 'lat']].map(([l, k]) => `<div class="col-md-4"><div class="stat"><div class="l">${l}</div><div class="v" id="${k}"></div></div></div>`).join('')}</div></div>`;
+    const draw = iv => {
+      let s = `<svg viewBox="0 0 720 190" class="w-100 d-block" role="img" aria-label="Events grouped into micro-batches">`;
+      s += `<line x1="30" x2="690" y1="72" y2="72" stroke="#e3dfef"/>`;
+      for (let b = 0; b < 60; b += iv) {
+        const n = evs.filter(e => e.t >= b && e.t < b + iv).length;
+        s += `<line x1="${X(b)}" x2="${X(b)}" y1="8" y2="150" stroke="#cdc5e4" stroke-dasharray="4 4"/>`;
+        s += `<rect class="bb" data-end="${b + iv}" x="${X(b) + 2}" y="96" width="${X(b + iv) - X(b) - 4}" height="40" rx="7" fill="#efe9fc" stroke="#6b3fd6" opacity=".25"/>`;
+        s += `<text class="bl" data-end="${b + iv}" x="${(X(b) + X(b + iv)) / 2}" y="121" text-anchor="middle" font-size="${iv < 5 ? 10 : 12}" font-weight="700" fill="#6b3fd6" opacity="0">${n}</text>`;
+      }
+      evs.forEach(e => { s += `<circle class="ev" data-t="${e.t}" cx="${X(e.t)}" cy="${e.y}" r="4" fill="#b3aecb"/>`; });
+      [0, 10, 20, 30, 40, 50, 60].forEach(v => { s += `<text x="${X(v)}" y="170" text-anchor="middle" font-size="11" fill="#5f5b7a">${v}s</text>`; });
+      s += `<text x="30" y="186" font-size="11" fill="#5f5b7a">events (top) are grouped into micro-batches (boxes) with their event count</text>`;
+      s += `<line id="cur" x1="30" x2="30" y1="4" y2="152" stroke="#e2780f" stroke-width="3"/></svg>`;
+      $('#svg', el).innerHTML = s;
+      $('#bpm', el).textContent = 60 / iv; $('#wait', el).textContent = (iv / 2).toFixed(1) + ' s'; $('#lat', el).textContent = '≈ ' + (iv / 2 + 1.5).toFixed(1) + ' s';
+    };
+    const play = () => {
+      gsap.globalTimeline.clear(); const iv = +$('#iv .active', el).dataset.v; draw(iv);
+      const o = { t: 0 }, evEls = $$('.ev', el), bl = $$('.bl', el), bb = $$('.bb', el);
+      gsap.to(o, { t: 60, duration: 6, ease: 'none', onUpdate: () => {
+        const x = X(o.t); $('#cur', el).setAttribute('x1', x); $('#cur', el).setAttribute('x2', x);
+        evEls.forEach(c => { if (+c.dataset.t <= o.t) c.setAttribute('fill', '#6b3fd6'); });
+        bl.forEach((t, i) => { if (+t.dataset.end <= o.t + .01 && t.getAttribute('opacity') === '0') { t.setAttribute('opacity', 1); bb[i].setAttribute('opacity', 1); gsap.fromTo(bb[i], { scale: .8, transformOrigin: '50% 50%' }, { scale: 1, duration: .25 }); } });
+      } });
+    };
+    $$('#iv button', el).forEach(b => b.onclick = () => { $$('#iv button', el).forEach(x => x.classList.toggle('active', x === b)); gsap.globalTimeline.clear(); draw(+b.dataset.v); });
+    $('#play', el).onclick = play; draw(5);
+  }
+},
+{
+  short: 'Time windows', title: 'Count events per time window',
+  lead: '“Failed logins per minute” means grouping events into time windows, using the time the event actually happened.',
+  html: `<p>A live chart needs one value per time slot, so we group events into <b>windows</b> by their <b>event time</b> (the timestamp inside the log, not when Spark received it).</p>
+  <ul><li><b>Tumbling windows</b> sit side by side with no overlap: 10:00–10:02, 10:02–10:04… Every event lands in exactly one window. Great for “per 2 minutes” bars and lines.</li>
+  <li><b>Sliding windows</b> overlap: 4-minute windows that start every 2 minutes. Each event is counted in two windows. This gives a smoother “last 4 minutes” view.</li></ul>
+  <p>Toggle between them and watch how each event is counted.</p>`,
+  key: 'Group by event-time windows. Tumbling = no overlap; sliding = overlapping, smoother.',
+  terms: ['window(event_time, "2 minutes")', 'tumbling window', 'sliding window', 'event time'],
+  vis(el){
+    const r = mulberry32(31), evs = Array.from({ length: 30 }, () => +(r() * 10).toFixed(2)).concat([3.1, 3.3, 3.5, 3.6, 3.8]);
+    const X = m => 40 + m * 64;
+    el.innerHTML = `<div class="panel"><div class="d-flex gap-2 mb-2 flex-wrap"><div class="btn-group btn-group-sm" id="md"><button class="btn btn-seg active" data-m="t">Tumbling · 2 min</button><button class="btn btn-seg" data-m="s">Sliding · 4 min every 2 min</button></div></div><div id="svg"></div><div class="small mt-1" id="msg"></div></div>`;
+    const draw = mode => {
+      let s = `<svg viewBox="0 0 720 220" class="w-100 d-block" role="img" aria-label="Events grouped into time windows">`;
+      s += `<line x1="40" x2="680" y1="60" y2="60" stroke="#e3dfef" stroke-width="2"/>`;
+      for (let m = 0; m <= 10; m++) s += `<text x="${X(m)}" y="80" font-size="11" text-anchor="middle" fill="#5f5b7a">10:${pad(m)}</text>`;
+      evs.forEach((e, i) => { s += `<circle class="ev" cx="${X(e)}" cy="${28 + (i % 4) * 7}" r="5" fill="${C.rose}" opacity=".85"/>`; });
+      const wins = mode === 't' ? [0, 2, 4, 6, 8].map(a => [a, a + 2, 0]) : [-2, 0, 2, 4, 6, 8].map((a, i) => [a, a + 4, i % 2]);
+      wins.forEach(([a, b, lane]) => {
+        const x1 = X(Math.max(a, 0)), x2 = X(Math.min(b, 10)), y = 100 + lane * 52, n = evs.filter(e => e >= a && e < b).length;
+        s += `<g class="win"><rect x="${x1 + 2}" y="${y}" width="${x2 - x1 - 4}" height="40" rx="8" fill="${lane ? '#fdf0e1' : '#efe9fc'}" stroke="${lane ? C.acc : C.pri}"/>`;
+        s += `<text x="${(x1 + x2) / 2}" y="${y + 17}" text-anchor="middle" font-size="10" fill="#5f5b7a">${hhmm(600 + a)}–${hhmm(600 + b)}</text><text x="${(x1 + x2) / 2}" y="${y + 33}" text-anchor="middle" font-size="13" font-weight="800" fill="${lane ? C.acc : C.pri}">${n} events</text></g>`;
+      });
+      $('#svg', el).innerHTML = s + '</svg>';
+      gsap.from($$('.ev', el), { y: -30, opacity: 0, duration: .4, stagger: .02 });
+      gsap.from($$('.win', el), { opacity: 0, y: 12, duration: .4, stagger: .12, delay: .5 });
+      $('#msg', el).innerHTML = mode === 't' ? `Window counts add up to ${evs.length}: every event is counted once. Notice the burst between 10:02 and 10:04.` : `Window counts add up to more than ${evs.length}: each event sits in two overlapping windows. Edge windows extend beyond the chart.`;
+    };
+    $$('#md button', el).forEach(b => b.onclick = () => { $$('#md button', el).forEach(x => x.classList.toggle('active', x === b)); draw(b.dataset.m); });
+    draw('t');
+  }
+},
+{
+  short: 'Late data & watermarks', title: 'Late events and the watermark',
+  lead: 'Networks are messy: some events arrive minutes after they happened. How long should Spark wait for them?',
+  html: `<p>Each row is an event in the order it <b>arrived</b>. Some arrive late: a laptop was offline, a log shipper was slow. Spark could keep every window open forever, but then its memory (state) would grow forever.</p>
+  <p>A <b>watermark</b> sets the limit: “accept events up to <i>N</i> minutes older than the newest event time seen; older ones may be dropped, and windows older than that can be finalized and removed from memory.”</p>
+  <p>Drag the slider. A small delay keeps memory small and finalizes windows quickly, but loses late events. A large delay keeps more late events, but holds more state and finalizes later.</p>`,
+  key: 'Watermark = how late an event may be and still count. It trades completeness against memory and delay.',
+  terms: ['withWatermark("event_time", "5 minutes")', 'late data', 'state cleanup', 'event time vs arrival time'],
+  vis(el){
+    const E = [[0.5, 0.6], [1.2, 1.3], [2.0, 2.2], [1.0, 2.5], [3.1, 3.2], [4.0, 4.1], [2.4, 4.6], [5.2, 5.3], [0.8, 5.8], [6.0, 6.1], [3.5, 6.4], [7.0, 7.2]];
+    const T = m => `10:${pad(Math.floor(m))}:${pad(Math.round((m % 1) * 60))}`;
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-8"><div class="panel h-100">
+        <label class="small fw-bold">Watermark delay: <span class="badge-dark" id="wv">2 min</span></label><input type="range" min="0" max="8" value="2" id="w">
+        <table class="dtable mt-2"><thead><tr><th>#</th><th>event time</th><th>arrived</th><th>late by</th><th>watermark then</th><th>result</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+      <div class="col-lg-4"><div class="panel h-100"><div class="stat mb-2"><div class="l">Events accepted</div><div class="v" id="acc"></div></div><div class="stat mb-2"><div class="l">Late events dropped</div><div class="v" style="color:${C.rose}" id="dr"></div></div>
+        <div class="small fw-bold text-muted mt-2">State Spark must keep in memory</div><div class="bar mt-1" style="height:16px"><div class="bar-fill" id="st" style="background:${C.acc};transition:width .3s"></div></div>
+        <div class="small fw-bold text-muted mt-2">How long before a window is final</div><div class="bar mt-1" style="height:16px"><div class="bar-fill" id="fin" style="background:${C.cy};transition:width .3s"></div></div></div></div></div>`;
+    const upd = () => {
+      const d = +$('#w', el).value; $('#wv', el).textContent = d + ' min'; let mx = -Infinity, a = 0, dr = 0;
+      $('#tb', el).innerHTML = E.map(([et, at], i) => {
+        const wm = mx - d, drop = et < wm; mx = Math.max(mx, et); drop ? dr++ : a++;
+        const late = at - et;
+        return `<tr class="${drop ? 'drop' : (late > 1 ? 'upd' : '')}"><td>${i + 1}</td><td>${T(et)}</td><td>${T(at)}</td><td>${late > .3 ? late.toFixed(1) + ' min' : '–'}</td><td>${isFinite(wm) ? T(Math.max(wm, 0)) : '–'}</td><td style="font-family:Manrope;font-weight:700;color:${drop ? C.rose : C.green}">${drop ? 'dropped (too late)' : late > 1 ? 'accepted (late)' : 'accepted'}</td></tr>`;
+      }).join('');
+      $('#acc', el).textContent = a; $('#dr', el).textContent = dr;
+      $('#st', el).style.width = (15 + d * 10.5) + '%'; $('#fin', el).style.width = (12 + d * 11) + '%';
+    };
+    $('#w', el).oninput = upd; upd();
+  }
+},
+{
+  short: 'Output modes', title: 'Output modes: what gets written each batch',
+  lead: 'After each micro-batch, Spark writes part of the result table to the sink. The output mode decides which part.',
+  html: `<p>Our query counts failed logins per 1-minute window, with a 1-minute watermark. Step through four micro-batches in each mode and watch the right-hand panels.</p>
+  <ul><li><b>Complete</b>: writes the <b>whole</b> result table every batch. Simple, but it grows without end on a stream.</li>
+  <li><b>Update</b>: writes only the rows that <b>changed</b> in this batch. The sink must update existing rows (an <i>upsert</i>). This is the usual choice for a live dashboard: numbers appear immediately and get corrected as more events arrive.</li>
+  <li><b>Append</b>: writes a row only once it is <b>final</b>, after the watermark has passed its window. Each row is written exactly once, but appears later.</li></ul>`,
+  key: 'Live dashboards usually use update mode with an upsert sink; append waits for final rows.',
+  terms: ['outputMode("update")', 'outputMode("append")', 'outputMode("complete")', 'upsert'],
+  vis(el){
+    const B = [
+      { ch: { '10:00': 5 }, fin: [] },
+      { ch: { '10:00': 8, '10:01': 3 }, fin: [] },
+      { ch: { '10:01': 6, '10:02': 2 }, fin: ['10:00'] },
+      { ch: { '10:02': 4, '10:03': 1 }, fin: ['10:01'] }];
+    el.innerHTML = `<div class="d-flex flex-wrap gap-2 align-items-center mb-3"><div class="btn-group btn-group-sm" id="md">${['update', 'append', 'complete'].map((m, i) => `<button class="btn btn-seg ${i ? '' : 'active'}" data-m="${m}">${m}</button>`).join('')}</div>
+      <button class="btn btn-brand btn-sm" id="nx"><i class="bi bi-skip-forward-fill"></i> Next micro-batch</button><span class="pill" id="bn">before batch 1</span></div>
+      <div class="row g-3">${[['Result table in Spark’s state', 'st', 'bi-memory'], ['Written to the sink this batch', 'wr', 'bi-arrow-right-circle'], ['Sink contents (what Grafana sees)', 'sk', 'bi-database']].map(([t, k, ic]) => `<div class="col-md-4"><div class="panel h-100"><div class="panel-title"><i class="bi ${ic}"></i> ${t}</div><table class="dtable"><thead><tr><th>window</th><th>failed logins</th></tr></thead><tbody id="${k}"></tbody></table><div class="small text-muted mt-2" id="${k}N"></div></div></div>`).join('')}</div>`;
+    let mode = 'update', i = 0, state = {}, sink = {}, final = new Set();
+    const rows = (obj, cls = {}) => Object.keys(obj).sort().map(k => `<tr class="${cls[k] || ''}"><td>${k}</td><td>${obj[k]}${final.has(k) && obj === state ? ' <span class="tag tag-green">final</span>' : ''}</td></tr>`).join('') || '<tr><td colspan="2" class="text-muted" style="font-family:Manrope">nothing</td></tr>';
+    const reset = () => { i = 0; state = {}; sink = {}; final = new Set(); ['st', 'wr', 'sk'].forEach(k => { $('#' + k, el).innerHTML = rows({}); $('#' + k + 'N', el).textContent = ''; }); $('#bn', el).textContent = 'before batch 1'; $('#nx', el).disabled = false; };
+    $('#nx', el).onclick = () => {
+      const b = B[i]; i++;
+      const cls = {}; Object.entries(b.ch).forEach(([k, v]) => { cls[k] = k in state ? 'upd' : 'new'; state[k] = v; }); b.fin.forEach(f => final.add(f));
+      let wr = {};
+      if (mode === 'complete') wr = { ...state }; else if (mode === 'update') wr = { ...b.ch }; else b.fin.forEach(f => wr[f] = state[f]);
+      const skCls = {};
+      if (mode === 'complete') { sink = { ...state }; Object.keys(sink).forEach(k => skCls[k] = 'upd'); } else Object.entries(wr).forEach(([k, v]) => { skCls[k] = k in sink ? 'upd' : 'new'; sink[k] = v; });
+      $('#st', el).innerHTML = rows(state, cls); $('#wr', el).innerHTML = rows(wr, Object.fromEntries(Object.keys(wr).map(k => [k, 'hl'])));
+      $('#sk', el).innerHTML = rows(sink, skCls);
+      $('#wrN', el).textContent = `${Object.keys(wr).length} row(s) written`;
+      $('#skN', el).textContent = mode === 'append' && !Object.keys(sink).length ? 'Empty until a window is finalized by the watermark.' : mode === 'complete' ? 'Whole table rewritten every batch.' : mode === 'update' ? 'Green = inserted, orange = updated in place.' : 'Each row written once, after it is final.';
+      $('#bn', el).textContent = `after batch ${i} of ${B.length}`;
+      gsap.from($$('#wr tr, #sk tr.new, #sk tr.upd', el), { opacity: 0, x: -8, stagger: .05, duration: .25 });
+      if (i >= B.length) $('#nx', el).disabled = true;
+    };
+    $$('#md button', el).forEach(b => b.onclick = () => { mode = b.dataset.m; $$('#md button', el).forEach(x => x.classList.toggle('active', x === b)); reset(); });
+    reset();
+  }
+},
+{
+  short: 'The sink', title: 'The sink: where Grafana reads the live numbers',
+  lead: 'Spark writes each micro-batch into a database that Grafana can query by time.',
+  html: `<p>Grafana does not read from Spark directly. Spark writes its windowed counts into a <b>sink</b>, a store Grafana can query. Good choices are databases that handle time well, such as <b>PostgreSQL / TimescaleDB</b> or <b>InfluxDB</b>.</p>
+  <p>A common pattern is <b>foreachBatch</b>: for every micro-batch, Spark hands us a small normal DataFrame and we write it to the database with an <b>upsert</b> keyed on <code>(window_start, event_type)</code>. If a window’s count changes, the existing row is updated (orange) instead of duplicated; new windows are inserted (green).</p>
+  <p>Spark also has <b>console</b> and <b>memory</b> sinks. They are handy for debugging, but they are not for dashboards.</p>`,
+  key: 'Write each micro-batch to a time-friendly database with an upsert on (window, type).',
+  terms: ['writeStream', 'foreachBatch', 'upsert', 'TimescaleDB / InfluxDB', 'console sink (debug only)'],
+  vis(el){
+    el.innerHTML = `<div class="panel mb-3"><div class="fwrap"><div class="flow" id="flow"><div class="flow-track"></div><div class="pkt" id="pk" style="background:${C.acc}"></div>
+      <div class="node n-acc"><i class="bi bi-collection-fill"></i>Kafka<small>security-events</small></div>
+      <div class="node n-pri"><i class="bi bi-lightning-charge-fill"></i>Structured Streaming<small>count per 1-min window</small></div>
+      <div class="node n-pri"><i class="bi bi-arrow-repeat"></i>foreachBatch<small>upsert</small></div>
+      <div class="node n-cy"><i class="bi bi-database-fill"></i>TimescaleDB<small>failed_logins_per_min</small></div>
+      <div class="node n-green"><i class="bi bi-speedometer"></i>Grafana<small>queries by time</small></div></div></div></div>
+      <div class="panel"><div class="panel-title"><i class="bi bi-table"></i> failed_logins_per_min <span class="ms-auto pill" id="bn">batch 0</span></div>
+      <table class="dtable"><thead><tr><th>window_start</th><th>event_type</th><th>count</th><th>last change</th></tr></thead><tbody id="tb"></tbody></table></div>`;
+    let b = 0, minute = 0; const rows = new Map(); const r = mulberry32(8);
+    const step = () => {
+      b++; if (b % 3 === 1) minute++;
+      const nodes = $$('.node', el), tl = gsap.timeline();
+      tl.set('#pk', { x: nodes[0].offsetLeft + nodes[0].offsetWidth / 2, opacity: 1 });
+      nodes.slice(1, 4).forEach(n => tl.to('#pk', { x: n.offsetLeft + n.offsetWidth / 2, duration: .35, ease: 'power1.inOut' }).to(n, { scale: 1.07, duration: .1, yoyo: true, repeat: 1 }));
+      tl.to('#pk', { opacity: 0, duration: .15 });
+      tl.call(() => {
+        const changed = {};
+        ['failed_login', 'port_scan'].forEach(t => { const k = hhmm(600 + minute) + '|' + t; const old = rows.get(k); const inc = Math.round((t === 'failed_login' ? 9 : 4) + r() * 6); rows.set(k, { w: hhmm(600 + minute), t, c: (old ? old.c : 0) + inc, s: old ? 'upd' : 'new', b }); changed[k] = 1; });
+        rows.forEach((v, k) => { if (!changed[k]) v.s = ''; });
+        const list = [...rows.values()].slice(-8).reverse();
+        $('#tb', el).innerHTML = list.map(v => `<tr class="${v.s}"><td>${v.w}</td><td style="color:${TCOL[v.t]}">${v.t}</td><td>${v.c}</td><td style="font-family:Manrope">${v.s === 'new' ? 'inserted' : v.s === 'upd' ? 'updated' : 'batch ' + v.b}</td></tr>`).join('');
+        $('#bn', el).textContent = 'batch ' + b;
+        gsap.fromTo('.node.n-green', { scale: 1 }, { scale: 1.07, yoyo: true, repeat: 1, duration: .12 });
+      });
+    };
+    step(); every(step, 2300);
+  }
+},
+{
+  short: 'Checkpoints', title: 'Checkpoints: surviving a crash without gaps or duplicates',
+  lead: 'Streaming queries run for weeks. When one restarts, it must continue exactly where it stopped.',
+  html: `<p>A <b>checkpoint location</b> is a folder where Spark records, after every micro-batch, which Kafka offsets it has processed and what is in its state. On restart it reads the checkpoint and carries on.</p>
+  <p>Pick a scenario and press <b>Run with a crash</b>. The query crashes at 10:06 and is down for two minutes.</p>
+  <ul><li><b>With checkpoint</b>: it resumes at the last committed offsets and catches up the missed minutes (orange).</li>
+  <li><b>No checkpoint, start from latest</b>: it skips what happened while it was down. The dashboard shows a <b>gap</b>, and an attack in those minutes is invisible.</li>
+  <li><b>No checkpoint, start from earliest</b>: it reprocesses everything from the beginning. With an append-only sink, old minutes are <b>double-counted</b> (red).</li></ul>`,
+  key: 'Always set a checkpoint location, and give each query its own. Pair it with an upsert sink for safe restarts.',
+  terms: ['checkpointLocation', 'committed offsets', 'restart', 'startingOffsets', 'idempotent sink'],
+  vis(el){
+    const base = [41, 38, 45, 52, 47, 44, 49, 140, 132, 46, 43, 48];
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-4"><div class="panel h-100"><div class="small fw-bold mb-2">Scenario</div>
+        ${[['ck', 'With checkpoint'], ['latest', 'No checkpoint, start from latest'], ['earliest', 'No checkpoint, start from earliest']].map(([k, l], i) => `<div class="form-check"><input class="form-check-input" type="radio" name="sc" id="sc_${k}" value="${k}" ${i ? '' : 'checked'}><label class="form-check-label small" for="sc_${k}">${l}</label></div>`).join('')}
+        <button class="btn btn-brand btn-sm mt-3" id="go"><i class="bi bi-play-fill"></i> Run with a crash</button>
+        <div class="mt-3" id="status"><span class="state-pill st-normal"><i class="bi bi-circle-fill"></i> ready</span></div>
+        <div class="small mt-2" id="sum"></div></div></div>
+      <div class="col-lg-8"><div class="panel h-100"><div class="panel-title"><i class="bi bi-bar-chart-steps"></i> Failed logins per minute, as stored in the sink</div><div style="height:260px"><canvas id="cv"></canvas></div><div class="small text-muted">The real attack happened at 10:07–10:08, during the outage.</div></div></div></div>`;
+    const labels = base.map((_, i) => hhmm(601 + i));
+    const ch = mkChart($('#cv', el), { type: 'bar', data: { labels, datasets: [{ label: 'processed normally', data: Array(12).fill(null), backgroundColor: C.pri, borderRadius: 3 }, { label: 'caught up after restart', data: Array(12).fill(null), backgroundColor: C.acc, borderRadius: 3 }, { label: 'double-counted', data: Array(12).fill(null), backgroundColor: C.rose, borderRadius: 3 }] },
+      options: { maintainAspectRatio: false, animation: { duration: 250 }, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, max: 200 } } } });
+    const st = (cls, ic, t) => $('#status', el).innerHTML = `<span class="state-pill ${cls}"><i class="bi ${ic}"></i> ${t}</span>`;
+    $('#go', el).onclick = e => {
+      const btn = e.currentTarget; btn.disabled = true; const sc = $('input[name=sc]:checked', el).value;
+      ch.data.datasets.forEach(d => d.data = Array(12).fill(null)); ch.update(); $('#sum', el).textContent = '';
+      let m = 0; st('st-normal', 'bi-play-circle-fill', 'running');
+      const tick = () => {
+        if (m === 5 || m === 6) { st('st-firing', 'bi-x-octagon-fill', 'query crashed'); m++; return; }
+        if (m === 7) {
+          st('st-pending', 'bi-arrow-repeat', 'restarting');
+          if (sc === 'ck') { ch.data.datasets[1].data[5] = base[5]; ch.data.datasets[1].data[6] = base[6]; }
+          if (sc === 'earliest') { for (let k = 0; k < 5; k++) ch.data.datasets[2].data[k] = base[k]; ch.data.datasets[1].data[5] = base[5]; ch.data.datasets[1].data[6] = base[6]; }
+        }
+        if (m >= 12) {
+          clearInterval(id); btn.disabled = false; st('st-normal', 'bi-check-circle-fill', 'finished');
+          const stored = ch.data.datasets.reduce((a, d) => a + d.data.reduce((x, y) => x + (y || 0), 0), 0), truth = base.reduce((a, b) => a + b, 0);
+          $('#sum', el).innerHTML = `Stored total: <b class="mono">${fmt(stored)}</b> · real total: <b class="mono">${fmt(truth)}</b><br>${sc === 'ck' ? '<span style="color:#1f7046">Correct. No gap, no duplicates.</span>' : sc === 'latest' ? '<span style="color:#a12a50">Two minutes lost, including the attack spike at 10:07.</span>' : '<span style="color:#a12a50">Early minutes counted twice. Every chart is now wrong.</span>'}`;
+          ch.update(); return;
+        }
+        ch.data.datasets[0].data[m] = (sc === 'ck' || sc === 'earliest' || m > 6) && !(m >= 5 && m <= 6) ? base[m] : null;
+        if (m > 7) st('st-normal', 'bi-play-circle-fill', 'running');
+        ch.update(); m++;
+      };
+      const id = every(tick, 480);
+    };
+  }
+},
+{
+  short: 'Connect Grafana', title: 'Connect Grafana and describe the query',
+  lead: 'Grafana is built for time series. You tell it which column is time, which is the value, and which splits the lines.',
+  html: `<p>In Grafana you add the sink database as a <b>data source</b> (again with a read-only user), then build a <b>query</b> for a panel by describing three things:</p>
+  <ul><li><b>Time column</b>: <code>window_start</code>, so Grafana knows where each point goes on the x-axis.</li>
+  <li><b>Value</b>: <code>count</code>, the height of each point.</li>
+  <li><b>Metric</b> (series): <code>event_type</code>, which gives one line per type.</li></ul>
+  <p>The dashboard’s <b>time picker</b> (top right in Grafana) automatically limits the query to the chosen range, so Grafana never reads the whole table. Change the range and watch which sink rows are selected.</p>`,
+  key: 'Tell Grafana the time column, the value and the series; the time picker filters the rows for you.',
+  terms: ['data source', 'time column', 'metric / series', 'time range picker', '$__timeFilter'],
+  vis(el){
+    const r = mulberry32(17), rows = Array.from({ length: 60 }, (_, i) => ({ m: 600 + i, fl: Math.round(28 + r() * 14 + (i > 50 && i < 55 ? 60 : 0)), ps: Math.round(12 + r() * 8) }));
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-5"><div class="gf-panel mb-3"><div class="gf-head"><i class="bi bi-speedometer" style="color:${C.acc}"></i> Panel query <select class="form-select form-select-sm ms-auto" style="width:auto" id="rng"><option value="5">Last 5 minutes</option><option value="15" selected>Last 15 minutes</option><option value="60">Last 1 hour</option></select></div>
+        ${[['Data source', 'SOC stream (TimescaleDB)'], ['Table', 'failed_logins_per_min'], ['Time column', 'window_start'], ['Metric (series)', 'event_type'], ['Value', 'count'], ['Time filter', '<span id="tf"></span>']].map(([k, v]) => `<div class="gf-row"><span class="k">${k}</span><span class="fake-input">${v}</span></div>`).join('')}</div>
+        <div class="gf-panel"><div class="gf-head"><i class="bi bi-graph-up" style="color:${C.acc}"></i> Preview</div><div style="height:170px" class="p-2"><canvas id="cv"></canvas></div></div></div>
+      <div class="col-lg-7"><div class="panel h-100"><div class="panel-title"><i class="bi bi-database"></i> Sink table (newest first) <span class="ms-auto pill" id="sel"></span></div>
+        <div style="max-height:360px;overflow:auto"><table class="dtable"><thead><tr><th>window_start</th><th>failed_login</th><th>port_scan</th></tr></thead><tbody id="tb">${rows.slice().reverse().map(x => `<tr data-m="${x.m}"><td>${hhmm(x.m)}</td><td>${x.fl}</td><td>${x.ps}</td></tr>`).join('')}</tbody></table></div>
+        <div class="small text-muted mt-1">Shown side by side for compactness; in the real table each type is its own row. Now = 11:00.</div></div></div></div>`;
+    const ch = mkChart($('#cv', el), { type: 'line', data: { labels: [], datasets: [{ label: 'failed_login', data: [], borderColor: C.rose, pointRadius: 0, tension: .25 }, { label: 'port_scan', data: [], borderColor: C.acc, pointRadius: 0, tension: .25 }] }, options: { maintainAspectRatio: false, animation: { duration: 400 }, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxTicksLimit: 6 } }, y: { beginAtZero: true } } } });
+    const upd = () => {
+      const n = +$('#rng', el).value, from = 660 - n, sel = rows.filter(x => x.m >= from);
+      $$('#tb tr', el).forEach(tr => tr.classList.toggle('hl', +tr.dataset.m >= from));
+      $('#sel', el).textContent = `${sel.length} of 60 windows selected`; $('#tf', el).textContent = `${hhmm(from)} → 11:00`;
+      ch.data.labels = sel.map(x => hhmm(x.m)); ch.data.datasets[0].data = sel.map(x => x.fl); ch.data.datasets[1].data = sel.map(x => x.ps); ch.update();
+    };
+    $('#rng', el).onchange = upd; upd();
+  }
+},
+{
+  short: 'Live panel & refresh', title: 'A live panel: match refresh to the trigger',
+  lead: 'Grafana re-runs the panel query on a refresh interval. Refreshing faster than Spark writes only wastes queries.',
+  html: `<p>This panel is live (time runs 4× faster here). Spark writes a new row to the sink every <b>5 seconds</b>, its trigger interval. Grafana re-queries the sink on its own <b>refresh interval</b>.</p>
+  <p>Try 1 s: most refreshes find nothing new, yet every one is a database query, multiplied by every panel and every person watching. Try 30 s: the panel lags behind the data. A refresh close to the trigger interval gives the best of both.</p>`,
+  key: 'Set Grafana’s refresh close to Spark’s trigger interval. Faster only adds load; slower only adds delay.',
+  terms: ['refresh interval', 'auto-refresh', 'trigger interval', 'query load'],
+  vis(el){
+    el.innerHTML = `<div class="gf-panel"><div class="gf-head"><i class="bi bi-graph-up" style="color:${C.acc}"></i> Failed logins & port scans · live
+        <span class="ms-auto d-flex align-items-center gap-2"><span class="small text-muted">refresh</span><div class="btn-group btn-group-sm" id="rf">${[1, 5, 15, 30].map(v => `<button class="btn btn-seg ${v === 5 ? 'active' : ''}" data-v="${v}">${v}s</button>`).join('')}</div></span></div>
+        <div class="p-2" style="height:250px"><canvas id="cv"></canvas></div></div>
+      <div class="row g-2 mt-2">${[['Clock (simulated)', 'clk'], ['Rows Spark wrote', 'sk'], ['Grafana queries', 'q'], ['Queries that found nothing new', 'w'], ['Panel data age', 'age']].map(([l, k]) => `<div class="col-6 col-md"><div class="stat"><div class="l">${l}</div><div class="v" id="${k}"></div></div></div>`).join('')}</div>`;
+    const r = mulberry32(44), sink = []; let t = 0, shown = 0, q = 0, wasted = 0, lastRef = 0;
+    const ch = mkChart($('#cv', el), { type: 'line', data: { labels: [], datasets: [{ label: 'failed_login', data: [], borderColor: C.rose, backgroundColor: C.rose + '14', fill: true, tension: .3, pointRadius: 2 }, { label: 'port_scan', data: [], borderColor: C.acc, tension: .3, pointRadius: 2 }] }, options: lineOpts({ animation: { duration: 300 }, scales: { y: { beginAtZero: true, max: 70 }, x: { ticks: { maxTicksLimit: 8 } } } }) });
+    const fmtT = s => `11:${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+    for (let s = -60; s < 0; s += 5) sink.push({ t: s, fl: Math.round(26 + r() * 12), ps: Math.round(10 + r() * 8) });
+    const refresh = () => { q++; if (sink.length === shown) wasted++; const pts = sink.slice(-14); ch.data.labels = pts.map(p => fmtT(((p.t % 3600) + 3600) % 3600)); ch.data.datasets[0].data = pts.map(p => p.fl); ch.data.datasets[1].data = pts.map(p => p.ps); ch.update(); shown = sink.length; };
+    refresh(); q = 0; wasted = 0;
+    every(() => {
+      t++; if (t % 5 === 0) sink.push({ t, fl: Math.round(26 + r() * 14), ps: Math.round(10 + r() * 8) });
+      const rf = +$('#rf .active', el).dataset.v;
+      if (t - lastRef >= rf) { lastRef = t; refresh(); gsap.fromTo('.gf-head', { backgroundColor: '#fdf0e1' }, { backgroundColor: '#ffffff', duration: .4 }); }
+      const newest = sink[shown - 1] ? sink[shown - 1].t : 0;
+      $('#clk', el).textContent = fmtT(t); $('#sk', el).textContent = sink.length - 12; $('#q', el).textContent = q;
+      $('#w', el).textContent = q ? Math.round(wasted / q * 100) + '%' : '0%'; $('#w', el).style.color = q && wasted / q > .5 ? C.rose : C.ink;
+      $('#age', el).textContent = (t - newest) + ' s';
+    }, 250);
+    $$('#rf button', el).forEach(b => b.onclick = () => { $$('#rf button', el).forEach(x => x.classList.toggle('active', x === b)); q = 0; wasted = 0; });
+  }
+},
+{
+  short: 'Thresholds & alerts', title: 'Thresholds, alerts and end-to-end delay',
+  lead: 'A live panel is most useful when it tells people to look. Add a threshold and an alert rule.',
+  html: `<p>Set a <b>threshold</b> on the panel and press <b>Simulate brute-force attack</b>. The line crosses the threshold and the alert rule starts evaluating:</p>
+  <ul><li><b>Normal</b>: below the threshold.</li><li><b>Pending</b>: above it, but not yet for long enough. This avoids paging someone for a single blip.</li><li><b>Firing</b>: above it for 3 points in a row. A notification goes to the SOC channel.</li></ul>
+  <p>The bar at the bottom adds up where the delay comes from, from the moment an event happens to the moment someone is alerted. Each piece is one of the settings you met in this lesson.</p>`,
+  key: 'Alert on sustained breaches, and know your total delay: trigger + processing + refresh + evaluation.',
+  terms: ['threshold', 'alert rule', 'pending period', 'notification', 'end-to-end latency'],
+  vis(el){
+    el.innerHTML = `<div class="row g-3"><div class="col-lg-8"><div class="gf-panel"><div class="gf-head"><i class="bi bi-bell" style="color:${C.acc}"></i> Failed logins per minute · VPN <span class="ms-auto" id="state"></span></div><div class="p-2" style="height:240px"><canvas id="cv"></canvas></div></div></div>
+      <div class="col-lg-4"><div class="panel h-100"><label class="small fw-bold">Threshold: <span class="badge-dark" id="tv">70</span></label><input type="range" min="30" max="140" value="70" id="th">
+        <button class="btn btn-brand btn-sm mt-3 w-100" id="atk"><i class="bi bi-lightning-fill"></i> Simulate brute-force attack</button>
+        <div class="small fw-bold text-muted mt-3">Alert history</div><div class="feed" id="feed" style="height:110px"></div></div></div></div>
+      <div class="panel mt-3"><div class="panel-title"><i class="bi bi-stopwatch"></i> Where the delay comes from (trigger 5 s, refresh 5 s, evaluation every 10 s)</div>
+        <div class="latbar" id="lat">${[['Kafka ingest', .3, '#9a94b8'], ['wait for trigger', 2.5, C.pri], ['Spark processing', 1.5, '#8b6fe0'], ['sink write', .4, C.cy], ['wait for evaluation', 5, C.acc], ['pending period', 15, C.rose]].map(([l, v, c]) => `<div style="background:${c};flex:${v}" title="${l}: ${v} s">${v >= 1.5 ? l + '<br>' + v + ' s' : ''}</div>`).join('')}</div>
+        <div class="small text-muted mt-1">≈ 25 s from the first bad login to a notification. The pending period is a deliberate choice to avoid false alarms.</div></div>`;
+    const r = mulberry32(77), N = 24, data = Array.from({ length: N }, () => Math.round(26 + r() * 14));
+    let atk = 0, above = 0, state = 'normal', t = 0;
+    const thr = () => +$('#th', el).value;
+    const ch = mkChart($('#cv', el), { type: 'line', data: { labels: data.map((_, i) => i), datasets: [
+      { label: 'failed logins', data: data.slice(), borderColor: C.pri, backgroundColor: C.pri + '14', fill: true, tension: .3, pointRadius: 3, pointBackgroundColor: ctx => (ctx.raw > thr() ? C.rose : C.pri), segment: { borderColor: ctx => (ctx.p1.parsed.y > thr() ? C.rose : C.pri) } },
+      { label: 'threshold', data: Array(N).fill(70), borderColor: C.rose, borderDash: [6, 5], pointRadius: 0, borderWidth: 1.5, fill: false }] },
+      options: { maintainAspectRatio: false, animation: { duration: 250 }, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { beginAtZero: true, max: 170 } } } });
+    const pill = () => { const m = { normal: ['st-normal', 'bi-check-circle-fill', 'Normal'], pending: ['st-pending', 'bi-hourglass-split', 'Pending'], firing: ['st-firing', 'bi-bell-fill', 'Firing'] }[state]; $('#state', el).innerHTML = `<span class="state-pill ${m[0]}"><i class="bi ${m[1]}"></i> ${m[2]}</span>`; };
+    const log = s => { const f = $('#feed', el), d = document.createElement('div'); d.innerHTML = s; f.prepend(d); gsap.from(d, { opacity: 0, x: -8 }); while (f.children.length > 6) f.lastElementChild.remove(); };
+    const setState = s => { if (s === state) return; const was = state; state = s; pill(); log(`<b>${hhmm(600 + t)}</b> ${was} → ${s}${s === 'firing' ? ' · notified #soc-alerts' : ''}`); };
+    pill();
+    $('#th', el).oninput = () => { $('#tv', el).textContent = thr(); ch.data.datasets[1].data = Array(N).fill(thr()); ch.update('none'); };
+    $('#atk', el).onclick = () => { atk = 9; };
+    every(() => {
+      t++; const v = atk > 0 ? Math.round(105 + r() * 40) : Math.round(26 + r() * 14); if (atk > 0) atk--;
+      const d = ch.data.datasets[0].data; d.push(v); d.shift(); ch.update();
+      if (v > thr()) { above++; setState(above >= 3 ? 'firing' : 'pending'); } else { above = 0; setState('normal'); }
+    }, 900);
+  }
+}];
+
+/* =========================================================
+   Quick checks
+   ========================================================= */
+const QUIZ = [
+  [
+    ['Why give Metabase a pre-aggregated table instead of the raw events?', ['Metabase cannot read numbers', 'Each card query reads a few thousand rows instead of scanning billions', 'Raw data is less accurate', 'Spark refuses to share raw data'], 1, 'Spark does the heavy work once; the dashboard reads a small summary instantly.'],
+    ['On the summary table, how do you get the total number of events?', ['Count of rows', 'Sum of event_count', 'Average of event_count', 'Distinct values of hour'], 1, 'Each row already summarizes many events, so you add up the count column.'],
+    ['The nightly job recomputes the last 3 days and uses append mode. What happens after two runs?', ['Nothing, append is always safe', 'Those days are stored twice and every chart doubles', 'The table is emptied', 'Metabase removes duplicates automatically'], 1, 'Append adds rows; re-appending the same period creates duplicates. Use overwrite or write only new periods.'],
+    ['Best chart for “which source has the most failed logins?”', ['Line', 'Pie with many slices', 'Sorted bar chart', 'Single number'], 2, 'Comparing categories is what bars do best.'],
+    ['How fresh is a Metabase dashboard built on batch output?', ['Always live', 'As fresh as the last Spark job that wrote the summary table', 'Exactly one minute old', 'It depends on the chart type'], 1, 'The dashboard can only show what is in the table. For “right now” questions, use streaming.']
+  ],
+  [
+    ['How does Structured Streaming treat a live stream?', ['As one huge file', 'As an unbounded table that keeps getting new rows', 'As a set of separate small programs', 'As a chart'], 1, 'You write a normal query; Spark keeps the result updated as rows arrive.'],
+    ['What does a 5-minute watermark mean?', ['Spark waits 5 minutes before starting', 'Events more than about 5 minutes older than the newest event time may be dropped, and old state can be cleared', 'The dashboard refreshes every 5 minutes', 'Kafka keeps messages for 5 minutes'], 1, 'The watermark trades completeness for bounded memory and earlier final results.'],
+    ['Which output mode writes only the rows that changed in a micro-batch?', ['complete', 'append', 'update', 'overwrite'], 2, 'Update mode plus an upsert sink is the usual choice for live dashboards.'],
+    ['Why set a checkpoint location?', ['To make charts prettier', 'So a restarted query resumes from committed offsets and state, without gaps or duplicates', 'To speed up Grafana', 'It is only needed for batch jobs'], 1, 'The checkpoint records progress after every micro-batch.'],
+    ['Spark triggers every 10 s, Grafana refreshes every 1 s. What is the effect?', ['The panel becomes 10× fresher', 'About 9 of every 10 refreshes re-read the same data and only add load', 'Spark speeds up', 'Grafana stops working'], 1, 'Refresh close to the trigger interval; the data cannot be fresher than Spark writes it.']
+  ]
+];
+function quizStep(li){
+  return {
+    short: 'Quick check', quiz: true, title: 'Quick check', lead: 'Five questions. Click an answer to see if you got it.',
+    html: `<p>These questions cover the ideas from this lesson. Wrong answers are fine: read the explanation, then return to the step if it still feels unclear.</p>`,
+    key: li ? 'Stream → windows + watermark → update mode → upsert sink with checkpoint → Grafana with matching refresh.' : 'Questions first, pre-aggregate in Spark, serve a small table, then build, filter and review in Metabase.',
+    terms: [],
+    vis(el){
+      el.innerHTML = QUIZ[li].map((q, qi) => `<div class="quiz-q"><div class="qt">${qi + 1}. ${q[0]}</div>${q[1].map((o, oi) => `<button class="quiz-opt" data-q="${qi}" data-o="${oi}">${o}</button>`).join('')}<div class="quiz-ex" id="ex${qi}">${q[3]}</div></div>`).join('') + `<div class="text-center fw-bold" id="score"></div>`;
+      const ans = {};
+      $$('.quiz-opt', el).forEach(b => b.onclick = () => {
+        const qi = +b.dataset.q, oi = +b.dataset.o, right = QUIZ[li][qi][2];
+        $$(`.quiz-opt[data-q="${qi}"]`, el).forEach(x => x.classList.remove('right', 'wrong'));
+        b.classList.add(oi === right ? 'right' : 'wrong'); if (oi !== right) $(`.quiz-opt[data-q="${qi}"][data-o="${right}"]`, el).classList.add('right');
+        $('#ex' + qi, el).style.display = 'block'; if (!(qi in ans)) ans[qi] = oi === right;
+        const n = Object.keys(ans).length; if (n === QUIZ[li].length) $('#score', el).textContent = `You got ${Object.values(ans).filter(Boolean).length} of ${n} right on the first try.`;
+        gsap.from(b, { scale: .96, duration: .2 });
+      });
+    }
+  };
+}
+
+/* =========================================================
+   App shell
+   ========================================================= */
+const LESSONS = [
+  { title: 'Creating dashboards with big data tools', short: 'Spark → Metabase', icon: 'bi-grid-1x2', steps: [...L1, quizStep(0)] },
+  { title: 'Visualizing real-time data streams', short: 'Structured Streaming → Grafana', icon: 'bi-broadcast', steps: [...L2, quizStep(1)] }];
+const state = { lesson: 0, step: 0, seen: [new Set(), new Set()] };
+
+function renderCards(){
+  $('#lessonCards').innerHTML = LESSONS.map((L, i) => {
+    const n = L.steps.length, done = state.seen[i].size;
+    return `<div class="col-md-6"><button class="lesson-card ${state.lesson === i ? 'active' : ''}" data-l="${i}"><span class="lnum"><i class="bi ${L.icon}"></i></span><span class="flex-grow-1"><span class="ls d-block">Lesson ${i + 1}</span><span class="lt d-block">${L.title}</span><span class="ls">12 steps and a quick check · ${L.short}</span><span class="lprog d-block"><i style="width:${Math.round(done / n * 100)}%"></i></span></span></button></div>`;
+  }).join('');
+  $$('#lessonCards .lesson-card').forEach(b => b.onclick = () => { state.lesson = +b.dataset.l; state.step = 0; render(true); });
+}
+function renderRail(){
+  const L = LESSONS[state.lesson];
+  $('#railHead').innerHTML = `Lesson ${state.lesson + 1}<b>${L.title}</b>`;
+  $('#rail').innerHTML = L.steps.map((s, i) => `<li><button class="${i === state.step ? 'active' : ''} ${state.seen[state.lesson].has(i) && i !== state.step ? 'done' : ''} ${s.quiz ? 'quiz' : ''}" data-i="${i}"><span class="n">${s.quiz ? '<i class="bi bi-check2"></i>' : i + 1}</span><span>${s.short}</span></button></li>`).join('');
+  $$('#rail button').forEach(b => b.onclick = () => { state.step = +b.dataset.i; render(true); });
+}
+function render(scroll){
+  cleanup();
+  const L = LESSONS[state.lesson], s = L.steps[state.step], n = L.steps.length;
+  state.seen[state.lesson].add(state.step);
+  renderCards(); renderRail();
+  $('#stepMeta').textContent = s.quiz ? `Lesson ${state.lesson + 1} · quick check` : `Lesson ${state.lesson + 1} · step ${state.step + 1} of 12`;
+  $('#stepTitle').textContent = s.title; $('#stepLead').textContent = s.lead;
+  $('#prog').style.width = ((state.step + 1) / n * 100) + '%';
+  $('#explain').innerHTML = s.html;
+  $('#side').innerHTML = `<div class="keycard"><div class="kt">Key idea</div><p>${s.key}</p></div>` + (s.terms.length ? `<div class="tool-box"><div class="kt">Names you will meet in the tools</div>${s.terms.map(x => `<span class="term">${x}</span>`).join('')}</div>` : '');
+  const vis = $('#vis'); vis.innerHTML = ''; s.vis(vis);
+  $('#prev').disabled = state.lesson === 0 && state.step === 0;
+  const last = state.step === n - 1;
+  $('#next').innerHTML = last ? (state.lesson === 0 ? 'Start Lesson 2 <i class="bi bi-arrow-right"></i>' : 'Finished <i class="bi bi-check2"></i>') : 'Next <i class="bi bi-arrow-right"></i>';
+  $('#next').disabled = last && state.lesson === 1;
+  gsap.from(['#stepTitle', '#stepLead'], { y: 8, opacity: 0, duration: .35, stagger: .06 });
+  heroLoop();
+  if (scroll) { const top = $('.stage').getBoundingClientRect().top + window.scrollY - 12; if (window.scrollY > top) window.scrollTo({ top, behavior: REDUCED ? 'auto' : 'smooth' }); }
+}
+function go(d){
+  const n = LESSONS[state.lesson].steps.length;
+  let s = state.step + d;
+  if (s >= n) { if (state.lesson === 0) { state.lesson = 1; s = 0; } else return; }
+  if (s < 0) { if (state.lesson === 1) { state.lesson = 0; s = LESSONS[0].steps.length - 1; } else return; }
+  state.step = s; render(true);
+}
+/* small live line in the hero: a quiet nod to streaming */
+const heroPts = Array.from({ length: 24 }, () => 60 + Math.random() * 30);
+function heroDraw(){ const pts = heroPts.map((v, i) => `${10 + i * 19},${v}`).join(' '); $('#heroLine').setAttribute('points', pts); $('#heroDot').setAttribute('cx', 10 + 23 * 19); $('#heroDot').setAttribute('cy', heroPts[23]); }
+function heroLoop(){ if (REDUCED) { heroDraw(); return; } every(() => { heroPts.shift(); heroPts.push(Math.random() < .08 ? 18 + Math.random() * 20 : 60 + Math.random() * 30); heroDraw(); }, 1100); heroDraw(); }
+
+$('#prev').onclick = () => go(-1); $('#next').onclick = () => go(1); $('#replay').onclick = () => render(false);
+document.addEventListener('keydown', e => {
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1);
+});
+render(false);
+</script>
+</body>
+</html>
