@@ -1,0 +1,1 @@
+# bda_lab6_concepts
